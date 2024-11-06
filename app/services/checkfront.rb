@@ -2,7 +2,7 @@ class Checkfront
   
   def self.import_customers
     checkfront_customers_csv_path = "/home/ubuntu/environment/nagaworks/db/checkfront/checkfront_customers_snapshot_06Nov2024.csv"
-    customers = csv_to_array_of_hashes(checkfront_customers_csv_path)
+    checkfront_customers = csv_to_array_of_hashes(checkfront_customers_csv_path)
     
     # customer format = {
     # 	"Customer"=>"Mr. Ngan",
@@ -75,6 +75,19 @@ class Checkfront
     # 	"Stay up to date on our newsletter."=>"",
     # 	"Booking instructions"=>""
     # }
+    
+    checkfront_bookings.each do |checkfront_booking|
+      booking_unique_reference = 
+      
+      
+      booking = Booking.find_or_create_by({
+        checkfront_reference: checkfront_booking["Booking ID"],
+        tatal_price: checkfront_booking[""],
+        created_at: checkfront_booking[""],
+      })
+      
+      booking.update_column(:updated_at, Time.now) if booking.updated_at.blank?
+    end
     
   end
   
