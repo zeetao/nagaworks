@@ -1,0 +1,615 @@
+<% 
+  # Usage: Render this partial passing parameters in the below format
+
+  # locals: {
+  #   model_variable: facility,
+  #   form_elements: {
+  #     "General Information" => [
+  #       { type: :text, label: "Name", field: :name},
+  #       { type: :text_area, label: "Name", field: :name},
+  #       { type: :number, label: "Age", field: :age},
+  #       { type: :email, label: "Email", field: :email},
+  #       { type: :phone_number, label: "Phone Number", field: :phone_number},
+  #       { type: :check_box, label: "HHP", field: :hhp},
+  #       { type: :check_box_group, label: "SAN Toxicity Classes", field: :san_toxicity_classes, check_box_collection: ChemicalActiveIngredient.san_toxicity_classes},
+  #       { type: :collection_select, label: "Region", field: :region_id, collection: Region.all, collection_id_field: :id, collection_display_field: :search_string  },
+  #       { type: :text, label: "Address", field: :address},
+  #       { type: :gps, field: :gps, latitude_label: "Latitude", latitude_field: :gps_latitude, longitude_label: "Longitude", longitude_field: :gps_longitude},
+  #       { type: :polygon, field: :scoping_polygons, label: "Farm Polygon" },
+  #       { type: :dynamic_select, label: "Facility Owner", field: :facility_owner_gid, database_object: facility.facility_owner, collection_display_field: :name, collection_id_field: :get_global_id, multiple_element_select: false, dom_id: "facility_owner_select2", query_parameters: [["Member", {}, "name"],["Farm", {}, "name"]]},
+  #         # If using dynamic select to select a single object then field must be an id field
+  #         # If using dynamic select to select a polymorphic object then:
+  #           - field must be an gid field. 
+  #           - collection_id_field: :get_global_id
+  #           - controller: params[:company] = associate_polymorphic_field(params[:company], :company_owner)
+  #       { type: :drop_down_select, label: "Facility Type", field: :facility_type, drop_down_array: Facility.facility_types, current_value: facility.facility_type }
+  #     ],
+  #     "Reference Numbers" => [
+  #       { type: :text, label: "GFW_PO_OD", field: :gfw_po_od},
+  #       { type: :text, label: "MPOB Number", field: :mpob_no},
+  #       { type: :date, label: "MPOB Expiry Date", field: :mpob_expiry},
+  #     ],
+  #     "Registration Information" => [
+  #       { type: :date, label: "Registration Expiry", field: :registration_expiry},
+  #       { type: :drop_down_select, label: "Registration Status", field: :registration_status, drop_down_array: Facility.registration_statuses, current_value: facility.registration_status },
+  #       { type: :drop_down_select, label: "Engagement Status", field: :engagement_status, drop_down_array: Facility.engagement_statuses, current_value: facility.engagement_status },
+  #       { type: :url, label: "WAGS Partner Agreement Link", field: :wags_partner_agreement_link},
+  #       { type: :attachment, label: "Registration card", field: :registration_document}
+  #     ],
+  #     "Other" => [
+  #       { type: :text, label: "Notes", field: :notes},
+  #       { type: :text, label: "RSPO Status Note", field: :rspo_status_note}
+  #     ],
+  #     "Dynamic fields" => [
+  #       { type: :dynamic_ffb, label: "FFB Production Data"},
+  #       { type: :dynamic_chemicals, label: "FFB Production Data"},
+  #       { type: :dynamic_fertilisers, label: "FFB Production Data"},
+  #       { type: :dynamic_comments, label: "Comments"}
+  #     ],
+  #     "Attachment" => [
+  #       { type: :attachment, label: "Image of Instructor", field: :file_group_1, file_type: "image/*", capture: "user"}, front camera
+  #       { type: :attachment, label: "Training Images", field: :file_group_1, file_type: ".png, .jpg, .gif", capture: "environment"}, back camera
+  #       { type: :attachment, label: "Attendance List", field: :file_group_2, file_type: ".pdf, .doc, .docx, .png, .jpg, .jpeg"}, upload file
+  #       { type: :attachment, label: "Some Audio Tracks", field: :file_group_4, file_type: "audio/*", capture: "environment"}, microphone
+  #       { type: :attachment, label: "Some Videos", field: :file_group_5, file_type: "video/*"} upload file
+  #     ]
+  #   }
+  # }
+%>
+<%
+  # Set Global JSON form flag
+  @json_field = (defined?(json_field) && json_field.present?) ? json_field : false 
+  
+  # Helper method to get element value for wags_form
+  def element_value(model_variable, field_name)
+    # if the form element is gps, it has actually two fields gps_latitude and gps_longitude so return nil. Have to use a different element_value method for gps
+    return nil if field_name == :gps
+
+    if field_name == :tag_list
+      return model_variable.send(field_name)
+    elsif @json_field
+      return model_variable.send(@json_field)[field_name.to_s]
+    elsif ["member_ids", "zone_ids"].include?(field_name)
+      # member_ids is not a field name so cannot be called like a hash key
+      return model_variable.send(field_name)
+    else
+      return model_variable[field_name]
+    end
+  end
+  
+  # Helper method to get element value for wags_form special case for GPS
+  def element_value_gps(model_variable)
+    # this method only used for gps, need to return two values
+    return nil if field_name != :gps
+    
+    if @json_field
+      return {
+        gps_latitude: model_variable.send(:gps_latitude)[@json_field],
+        gps_latitude: model_variable.send(:gps_longitude)[@json_field]
+      }
+    else
+      return {
+        gps_latitude: model_variable.send(:gps_latitude),
+        gps_latitude: model_variable.send(:gps_longitude)
+      }
+    end
+  end
+  
+  # Helper method to construct the input name for wags_form
+  def adjusted_field_name(field_name)
+    if [:activity_type, :tag_list].include?(field_name)
+      # for activity_type, this is a non json field
+      "#{field_name}"
+
+    elsif @json_field
+      "#{@json_field}][#{field_name}"
+    else
+      "#{field_name}"
+    end
+  end
+  
+  # Helper method to construct the input name for wags_form
+  def input_name(model_variable, field_name)
+    singular_name = ActiveSupport::Inflector.singularize(model_variable.class.table_name)
+    "#{singular_name}[#{adjusted_field_name(field_name)}]"
+  end
+  
+  # Helper method to construct the input id for wags_form
+  def input_id(model_variable, field_name)
+    singular_name = ActiveSupport::Inflector.singularize(model_variable.class.table_name)  
+    if field_name == :activity_type
+      "#{singular_name}_#{field_name}"
+    elsif @json_field
+      "#{singular_name}_#{@json_field}_#{field_name}"
+    else
+      "#{singular_name}_#{field_name}"
+    end
+  end
+  
+  # randomised unique identifier number
+  def random_indentifier
+    (rand*100000).to_i
+  end
+  
+  # Helper method to construct the form parameters for wags_form
+  def form_parameters(model_variable, element, additional_options = {})
+    if element[:type] == :gps
+      # For gps only, need to return two values rather than one
+      latitude_common_params = {
+        name: input_name(model_variable, element[:latitude_field]),
+        id: input_id(model_variable, element[:latitude_field]),
+        value: element_value(model_variable, element[:latitude_field]),
+        class: "form-control rounded-0 p-2",
+        disabled: element[:disabled].present?
+      }
+      # Merge any additional options provided for specific field types
+      latitude_common_params.merge(additional_options)
+      
+      longitude_common_params = {
+        name: input_name(model_variable, element[:longitude_field]),
+        id: input_id(model_variable, element[:longitude_field]),
+        value: element_value(model_variable, element[:longitude_field]),
+        class: "form-control rounded-0 p-2",
+        disabled: element[:disabled].present?
+      }
+      # Merge any additional options provided for specific field types
+      longitude_common_params.merge(additional_options)
+      
+      return {
+        latitude: latitude_common_params,
+        longitude: longitude_common_params
+      }
+    else
+      # all other element types, return one value only
+      if additional_options[:multiple] == true
+        name = "#{input_name(model_variable, element[:field])}[]"
+      else
+        name = input_name(model_variable, element[:field])
+      end
+      
+      common_params = {
+        name: name,
+        id: input_id(model_variable, element[:field]),
+        value: element[:default_value] || element_value(model_variable, element[:field]),
+        class: "form-control rounded-0 p-2",
+        disabled: element[:disabled].present?
+      }
+      
+      # if checkbox, then add special styling
+      if element[:type] == :check_box
+        common_params[:class] = "form-check-input"
+      end
+      
+      # Add extra parameter for drop down select
+      if [:drop_down_select, :collection_select].include?(element[:type])
+        common_params[:include_blank] = 'Please Select'
+      end
+      
+      # if dynamic select2 multi select
+      if element[:type] == :dynamic_select_multiple_members
+        common_params[:multiple] = true
+        common_params[:class] = 'form-control'
+        common_params[:id] = 'members_select2'
+      end
+
+      if element[:type] == :dynamic_select_multiple_zones
+        common_params[:multiple] = true
+        common_params[:class] = 'form-control'
+        common_params[:id] = 'zones_select2'
+      end
+      
+      # For polygon, hide the text area field containing the postgis polygon string by default
+      if element[:type] == :polygon
+        common_params[:style] = "display: none;"
+      end
+  
+      # hide if requested to do so
+      if element[:hide] == true
+        common_params[:style] = "display: none;"
+      end
+      
+      # Merge any additional options provided for specific field types
+      common_params.merge(additional_options)
+    end
+  end
+%>
+<%= form_with(model: model_variable, id: "wags-form") do |form| %>
+  <% form_elements.keys.each do |section| %><!-- section loop -->
+    <div class="d-flex flex-column flex-md-row"> <!-- section container -->
+      <div class="category mb-4"> <!--form elements left column containing section header -->
+        <h5 class="text-lg-nowrap"><%= section %></h5>
+      </div>
+      <div class="w-100"> <!-- form elements right column -->
+        <% form_elements[section].each do |element| %>
+          <% case element[:type] %>
+          <% when :text %>
+            <div class="mb-4 d-flex flex-column">
+              <div class="form-label custom-font-12"><%= element[:label]%></div>
+              <%= text_field_tag form_parameters(model_variable, element)[:name], form_parameters(model_variable, element)[:value], form_parameters(model_variable, element).except(:name, :value) %>
+            </div>
+          <% when :text_area %>
+            <div class="mb-4 d-flex flex-column">
+              <div class="form-label custom-font-12"><%= element[:label]%></div>
+              <%= text_area_tag form_parameters(model_variable, element)[:name], form_parameters(model_variable, element)[:value], form_parameters(model_variable, element).except(:name, :value) %>
+            </div>
+          <% when :number %>
+            <div class='mb-3 mb-sm-0 me-sm-3 d-flex flex-column w-100 '>
+              <div class="form-label custom-font-12"><%= element[:label]%></div>
+              <%= number_field_tag form_parameters(model_variable, element, step: :any)[:name], form_parameters(model_variable, element, step: :any)[:value], form_parameters(model_variable, element, step: :any).except(:name, :value) %>
+            </div>
+          <% when :email %>
+            <div class='mb-3 mb-sm-0 me-sm-3 d-flex flex-column w-100 '>
+              <div class="form-label custom-font-12"><%= element[:label]%></div>
+              <%= email_field_tag form_parameters(model_variable, element)[:name], form_parameters(model_variable, element)[:value], form_parameters(model_variable, element).except(:name, :value) %>
+            </div>
+          <% when :phone_number %>
+            <div class='mb-3 mb-sm-0 me-sm-3 d-flex flex-column w-100 '>
+              <div class="form-label custom-font-12"><%= element[:label]%></div>
+              <%= telephone_field_tag form_parameters(model_variable, element)[:name], form_parameters(model_variable, element)[:value], form_parameters(model_variable, element).except(:name, :value) %>
+            </div>
+          <% when :check_box %>
+            <div class='mb-3 mb-sm-0 me-sm-3 d-flex flex-column w-100 '>
+              <div class="inline-block" style="margin-bottom: 30px;">
+                <span>
+                  <%= check_box_tag form_parameters(model_variable, element)[:name],
+                  form_parameters(model_variable, element)[:value],
+                  form_parameters(model_variable, element)[:value],  # or any other condition that correctly represents the 'checked' state
+                  form_parameters(model_variable, element).except(:name, :value) %>
+                </span>
+                <span class="form-label custom-font-12"><%= element[:label]%></span>
+              </div>
+            </div>
+          <% when :check_box_group %>
+            <div class="mb-3">
+              <div class="form-label custom-font-12"><%= element[:label]%></div>
+              <div class="card">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="checkbox-container">
+                      <% element[:check_box_collection].each do |item| %>
+                        <%= check_box_tag form_parameters(model_variable, element)[:name], item.to_s, (form_parameters(model_variable, element)[:value]||[]).include?(item.to_s), id: "checkbox_#{item}" %>
+                        <%= label_tag "checkbox_#{item}", item.to_s, class: "checkbox-label" %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% when :collection_select %> <!--for when selecting other models as parents-->
+            <div class="mb-4 d-flex flex-column">
+              <div class="form-label custom-font-12"><%= element[:label]%></div>
+              <%= select_tag form_parameters(model_variable, element)[:name], options_from_collection_for_select(element[:collection], element[:collection_id_field], element[:collection_display_field], form_parameters(model_variable, element)[:value]), form_parameters(model_variable, element).except(:name, :value, :collection, :collection_id_field, :collection_display_field) %>
+            </div>
+          <% when :drop_down_select %> <!--for selecting a predefined drop down list-->
+            <div class="mb-4 d-flex flex-column ">
+              <div class="form-label custom-font-12"><%= element[:label]%></div>
+              <%= select_tag form_parameters(model_variable, element)[:name], options_for_select(element[:drop_down_array], element[:current_value]), form_parameters(model_variable, element).except(:name, :value, :drop_down_array, :current_value) %>
+            </div>
+          <% when :dynamic_select %> <!--for using select2 dynamic ajax calls select-->
+            <div class="mb-4 d-flex flex-column ">
+              <div class="form-label custom-font-12"><%= element[:label]%></div>
+              <%= select_tag( 
+                form_parameters(
+                  model_variable, 
+                  element
+                )[:name],
+                options_for_select(
+                  element[:database_object] ? [
+                    [
+                      element[:database_object].class.name + " : " + element[:database_object].send(element[:collection_display_field]), 
+                      element[:database_object].send(element[:collection_id_field])
+                    ]
+                  ] : [],
+                  selected: element[:database_object] ? element[:database_object].send(element[:collection_id_field]) : nil
+                ),
+                form_parameters(
+                  model_variable, 
+                  element
+                ).except(:name, :value).merge({multiple: false, id: element[:dom_id], class: "rounded-0 p-2"})
+              )%>
+              
+              <script type="text/javascript">
+                $(document).ready(function(){initialise_polymorphic_single_selector_select2($('#<%= element[:dom_id] %>'), <%= element[:query_parameters].to_json.html_safe %>);});
+              </script>
+            </div>
+          <% when :dynamic_select_multiple_members %> 
+            <div class="mb-3" data-controller="select2" data-select2-classarray-value=<%= element[:query_parameters].to_json %> data-select2-disabled-value="<%= element[:disabled].present? %>" data-select2-record-type-value="member">
+              <div class="form-label custom-font-12"><%= element[:label]%></div>
+              <%= select_tag form_parameters(model_variable, element, {multiple: true})[:name], 
+                options_from_collection_for_select(
+                  element[:collection], 
+                  element[:collection_id_field], 
+                  element[:collection_display_field], 
+                  form_parameters(model_variable, element)[:value]
+                ), 
+               form_parameters(model_variable, element, { multiple: true, id: element[:dom_id] || 'members_select2', data: { select2_target: 'selectTag' } }).except(:name, :value)
+              %>
+              <template data-select2-target="dropdownTemplate">
+                <div class="member-search-result-container p-1">
+                  <div class="member-name-and-id pb-2">
+                    <span class="member-name"></span>
+                    <span class="member-id"></span>
+                  </div>
+                  <div class="grid">
+                    <div class="member-tags g-col-12 g-col-md-6 g-col-xl-4">
+                      <span class="label">Tag(s)</span>
+                      <span class="value"></span>
+                    </div>
+                    <div class="member-zones g-col-12 g-col-md-6 g-col-xl-4">
+                      <span class="label">Assigned zone(s)</span>
+                      <span class="value"></span>
+                    </div>
+                    <div class="member-registration-status g-col-12 g-col-md-6 g-col-xl-4">
+                      <span class="label">Registration status</span>
+                      <span class="value"></span>
+                    </div>
+                    <div class="member-stage g-col-12 g-col-md-6 g-col-xl-4">
+                      <span class="label">Member stage</span>
+                      <span class="value"></span>
+                    </div>
+                    <div class="member-created-date g-col-12 g-col-md-6 g-col-xl-4">
+                      <span class="label">Member creation date</span>
+                      <span class="value"></span>
+                    </div>
+                    <div class="member-termination-date g-col-12 g-col-md-6 g-col-xl-4">
+                      <span class="label">Member termination date</span>
+                      <span class="value"></span>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          <% when :gps %>
+            <%= render_with_locals_and_block "partials/gmaps/gmaps_marker_edit_with_geolocation", {
+              map_dom_id: "map_marker_#{random_indentifier}",
+              gps_point: element[:gps_point],
+              latitude_field_id: "#{model_variable.class.name.downcase}_#{element[:latitude_field]}",
+              longitude_field_id: "#{model_variable.class.name.downcase}_#{element[:longitude_field]}", 
+              status_dom_id: "gps_position_status"
+            } do %>
+              <div>
+                <p id="gps_position_status"></p>
+              </div>
+              <% gps_form_parameters = form_parameters(model_variable, element, step: :any) %>
+              <div class="mb-4 d-flex flex-column flex-sm-row justify-content-between">
+                <div class='mb-3 mb-sm-0 me-sm-3 d-flex flex-column w-100 '>
+                  <div class="form-label custom-font-12"><%= element[:latitude_label]%></div>
+                  <%= number_field_tag gps_form_parameters[:latitude][:name], gps_form_parameters[:latitude][:value], gps_form_parameters[:latitude].except(:name, :value).merge({ step: 'any' }) %>
+                </div>
+                <div class='d-flex flex-column w-100'>
+                  <div class="form-label custom-font-12"><%= element[:longitude_label]%></div>
+                  <%= number_field_tag gps_form_parameters[:longitude][:name], gps_form_parameters[:longitude][:value], gps_form_parameters[:longitude].except(:name, :value).merge({ step: 'any' }) %>
+                </div>
+              </div>
+            <% end %>
+          <% when :polygon %>
+            <div class="form-label custom-font-12"><%= element[:label]%></div>
+            <%= render_with_locals_and_block "partials/gmaps/gmaps_polygon_editable", {
+              map_dom_id: "map_draw",
+              polygon_input_field_id: input_id(model_variable, element[:field]),
+              model_variable: model_variable,
+              polygon: model_variable[adjusted_field_name(element[:field])],
+              chosen_centrepoint: element[:chosen_centrepoint],
+              reference_polygon: element[:reference_polygon],
+              surrounding_farms: model_variable[adjusted_field_name(element[:field])].present? ? GeoOps.find_surrounding_farms(model_variable) : []
+            } do %>
+              <%= text_area_tag form_parameters(model_variable, element)[:name], form_parameters(model_variable, element)[:value], form_parameters(model_variable, element).except(:name, :value) %>
+            <% end %>
+          <% when :date %>
+            <div class="mb-4 d-flex flex-column ">
+              <div class="form-label custom-font-12"><%= element[:label]%></div>
+              <%= date_field_tag form_parameters(model_variable, element)[:name], form_parameters(model_variable, element)[:value], form_parameters(model_variable, element).except(:name, :value) %>
+            </div>
+          <% when :url %>
+            <div class="mb-4 d-flex flex-column ">
+              <div class="form-label custom-font-12"><%= element[:label]%></div>
+              <%= url_field_tag form_parameters(model_variable, element)[:name], form_parameters(model_variable, element)[:value], form_parameters(model_variable, element).except(:name, :value) %>
+            </div>
+          <% when :attachment %>
+            <div class="mb-4 d-flex flex-column" data-controller="venobox">
+              <div class="form-label custom-font-12"><%= element[:label] %></div>
+              <%
+                attachment_attributes = { multiple: true, accept: element[:file_type], class: "form-control rounded-0 p-2"}
+                attachment_attributes[:capture] = element[:capture] if element[:capture].present?
+              %>
+              <%= form.file_field element[:field], form_parameters(model_variable, element).except(:name, :value).merge(attachment_attributes) %>
+              <% if @activity.send(element[:field]).attached? %>
+                <div class="existing-images">
+                  <% @activity.send(element[:field]).each do |attachment| %>
+                    <div class="document" style="display:inline-block">
+                      <%= link_to rails_blob_path(attachment), class: attachment.content_type.match(/image/) ? 'wags-image-links' : '', data: { gall: element[:field].to_s } do %>
+                        <% if attachment.content_type.match(/image/)%>
+                          <span class="attachment-image">
+                            <%= image_tag attachment.variant(resize_to_limit: [100, 100]).processed, alt: attachment.filename.to_s %>  
+                          </span>
+                        <% else %>
+                          <p><%= link_to attachment.filename.to_s, attachment %></p>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+              <hr>
+            </div>
+          <% when :dynamic_ffb %>
+            <div class="mb-4 d-flex flex-column">
+              <%= render partial: "activities/dynamic_partials/dynamic_ffb", locals: { form: form, farm: element[:farm] } %>
+            </div>
+          <% when :dynamic_chemicals %>
+            <div class="mb-4 d-flex flex-column">
+              <%= render partial: "activities/dynamic_partials/dynamic_chemicals", locals: { form: form } %>
+            </div>
+          <% when :dynamic_fertilisers %>
+            <div class="mb-4 d-flex flex-column">
+              <%= render partial: "activities/dynamic_partials/dynamic_fertilisers", locals: { form: form } %>
+            </div>
+          <% when :dynamic_facilities %>
+            <div class="mb-4 d-flex flex-column">
+              <%= render partial: "activities/dynamic_partials/dynamic_facilities", locals: { form: form } %>
+            </div>
+          <% when :dynamic_contacts %>
+            <div class="mb-4 d-flex flex-column">
+              <%= render partial: "activities/dynamic_partials/dynamic_contacts", locals: { form: form } %>
+            </div>
+          <% when :dynamic_planting %>
+            <div class="mb-4 d-flex flex-column">
+              <%= render partial: "activities/dynamic_partials/dynamic_planting", locals: { form: form } %>
+            </div>
+          <% when :dynamic_comments %>
+            <div class="mb-4 d-flex flex-column">
+              <%= render partial: "activities/dynamic_partials/dynamic_comments", locals: { form: form } %>
+            </div>
+          <% when :dynamic_select_multiple_zones %>
+            <div class="mb-3">
+              <div class="form-label custom-font-12"><%= element[:label] %></div>
+              <%= select_tag form_parameters(model_variable, element, { multiple: true })[:name],
+                             options_from_collection_for_select(
+                                 element[:collection],
+                                 element[:collection_id_field],
+                                 element[:collection_display_field],
+                                 form_parameters(model_variable, element)[:value]
+                             ),
+                             form_parameters(model_variable, element, { multiple: true, id: element[:dom_id] || 'zones_select2' }).except(:name, :value)
+              %>
+
+            </div>
+            <script type="text/javascript">
+              $(document).ready(function () {
+                initialise_select2($('#zones_select2'), <%= element[:query_parameters].to_json.html_safe %>, false);
+              })
+            </script>
+          <% when :associated_records_list %>
+              <div class="pt5 pb5" data-controller="datatable">
+                <table class="table table-striped" data-datatable-target="recordsTable">
+                  <thead>
+                    <tr>
+                      <% element[:headers].keys.each do |header| %>
+                        <th scope="col"><%= header %></th>
+                      <% end %>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% element[:collection].each do |record| %>
+                      <tr>
+                        <% element[:headers].values.each do |method| %>
+                          <td><%= link_to record.send(method), record %></td>
+                        <% end %>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+          <% when :tags_select %>
+            <div class="mb-3">
+              <div class="form-label custom-font-12"><%= element[:label] %></div>
+              <%= select_tag form_parameters(model_variable, element, { multiple: true })[:name],
+                             options_from_collection_for_select(
+                               element[:collection],
+                               element[:collection_id_field],
+                               element[:collection_display_field],
+                               form_parameters(model_variable, element)[:value]
+                             ),
+                             form_parameters(model_variable, element, { multiple: true, id: element[:dom_id] || 'tags_select2' }).except(:name, :value)
+              %>
+              <script type="text/javascript">
+                $(document).ready(function () {
+                  initialise_select2($('#tags_select2'), <%= element[:query_parameters].to_json.html_safe %>, true);
+                })
+              </script>
+            </div>
+          <% end %> <!-- case section for deciding form elements end -->
+        <% end %> <!-- elements loop end -->
+      </div> <!-- form elements right column end -->
+    </div> <!-- section container end -->
+  <% end %> <!-- section loop end -->
+
+  <% if model_variable.class == Activity && can?(:set_initiator, model_variable)%>
+    <div class="d-flex flex-column flex-md-row"> <!-- section container -->
+      <div class="category mb-4"> <!--form elements left column containing section header -->
+        <h5 class="text-lg-nowrap">Assign Initiator to Activity</h5>
+      </div>
+      <div class="w-100">
+        <%= form.select :initiator_id, options_for_select(User.accessible_by(current_ability, :assign_as_activity_initiator).order(:name).map { |user| ["#{user.name || "Unnamed"} (#{user.email})", user.id] }.to_h, model_variable.initiator_id), { prompt: "Select a user to set as initiator for this activity" }, class: "form-control rounded-0 p-2" %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if model_variable.class == Activity && can?(:assign_to_activity, User )%>
+    <div class="d-flex flex-column flex-md-row"> <!-- section container -->
+      <div class="category mb-4"> <!--form elements left column containing section header -->
+        <h5 class="text-lg-nowrap">Assign Activity to User</h5>
+      </div>
+      <div class="w-100">
+        <%= form.select :assigned_user_id, options_for_select(User.accessible_by(current_ability, :assign_to_activity).order(:name).map { |user| ["#{user.name || "Unnamed"} (#{user.email})", user.id] }.to_h, model_variable.assigned_user_id), { prompt: "Select a user to assign this activity to" }, class: "form-control rounded-0 p-2" %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= render partial: 'partials/audit_trail', locals: { model_variable: model_variable } %>
+  <div class="mb-4 d-flex flex-column flex-md-row justify-content-end">
+    <%= turbo_frame_tag "notices" %>
+    <% flash.each do |name, msg| %>
+      <% if msg.is_a?(String) %>
+        <div class="alert alert-<%= name == 'notice' ? 'success' : 'danger' %>">
+          <%= msg %>
+        </div>
+      <% end %>
+    <% end %>
+    
+    <div id="submit-button-container" style="display: inline-block">
+      <% if controller_name == "activities" %>
+        <span><%= link_to "Back to Dashboard", activities_path, {class: "btn btn-primary rounded-pill px-4 py-2 w-100 w-sm-fit my-3"} %></span>
+        <% case action_name %>
+        <% when "new" %>
+          <span><%= form.submit "Intiate", class: "btn btn-success rounded-pill px-4 py-2 w-100 w-sm-fit my-3" %></span>
+        <% when "edit" %>
+          <span><%= form.submit "Save Changes", class: "btn btn-success rounded-pill px-4 py-2 w-100 w-sm-fit my-3" %></span>
+          <span><%= form.submit "Request Review", class: "btn btn-warning rounded-pill px-4 py-2 w-100 w-sm-fit my-3" %></span>
+        <% when "show" %>
+          <span><%= form.submit "Accept", class: "btn btn-success rounded-pill px-4 py-2 w-100 w-sm-fit my-3" %></span>
+          <span><%= form.submit "Reject", class: "btn btn-danger rounded-pill px-4 py-2 w-100 w-sm-fit my-3" %></span>
+        <% end %>
+      <% else %>
+        <span><%= form.submit "Save", class: "btn btn-success rounded-pill px-4 py-2 w-100 w-sm-fit my-3" %></span>
+      <% end %>
+    </div>
+  </div>
+<% end %> <!--end of form -->
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    // Function to adjust label widths
+    function adjustCategoryWidths() {
+      // Select all labels
+      var categories = $('.category');
+      
+      // Reset labels' min-width to auto to allow them to shrink if necessary
+      categories.css('min-width', 'auto');
+    
+      // Find the label with the maximum width
+      var minWidth = 0;
+      
+      
+      categories.each(function() {
+        minWidth = Math.max(minWidth, $(this).outerWidth());
+      });
+      
+      if (window.innerWidth >= 992){//Doesn't add extra spacing when in toablet view
+        var spacing = minWidth / 2;
+        minWidth = minWidth + spacing;
+      }
+      
+      // Set the min-width of all labels to the maximum width
+      categories.css('min-width', minWidth + 'px');
+      
+    }
+
+    // Call the function on document load
+      adjustCategoryWidths();
+      
+    // Attach the function to the resize event
+    $(window).on('resize', adjustCategoryWidths);
+    
+  });
+</script>

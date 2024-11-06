@@ -1,1 +1,18 @@
-This is bookings
+<h1>This is bookings</h1>
+<p>
+  <%= @btu_output_total %> BTU Input entries in Database
+</p>
+<p>
+  <%= render partial:  'partials/wags_filtered_search_bar', locals: {
+    path: btu_outputs_path,
+    target_dom: "btu_output_search_results",
+    search_criteria: {
+      sale_currency: BtuOutput.sale_currencies.map{|x|x[0]},
+      usage_type: BtuOutput.usage_types
+    }
+  }%>
+  <%= turbo_frame_tag "btu_output_search_results" %>
+</p>
+</p>
+  <%= link_to "Create", new_btu_output_path, class: "btn btn-success" %>
+<p>

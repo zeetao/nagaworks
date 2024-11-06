@@ -1,0 +1,21 @@
+<%= render partial: 'partials/wags_form', locals: {
+  model_variable: btu_output,
+  form_elements: {
+    "General Information" => [
+      { type: :text, label: "Name", field: :name},
+      { type: :collection_select, label: "BIO Transformation Unit", field: :bio_transformation_unit_id, collection: BioTransformationUnit.all, collection_id_field: :id, collection_display_field: :name  },
+      { type: :text, label: "Production Report", field: :production_report}
+    ],
+    "Sale details" => [
+      { type: :drop_down_select, label: "Sale Currency", field: :sale_currency, drop_down_array: BtuOutput.sale_currencies.map{|x|x[0]}, current_value: btu_output.sale_currency },
+      { type: :number, label: "Volume (mT)", field: :volume_mt},
+      { type: :number, label: "Sale Price", field: :sale_price},
+      { type: :date, label: "Sale Date", field: :sale_date},
+      { type: :text_area, label: "Sale Notes", field: :sale_notes}
+    ],
+    "Usage details" => [
+      { type: :gps, field: :gps, latitude_label: "Latitude", latitude_field: :gps_latitude, longitude_label: "Longitude", longitude_field: :gps_longitude},
+      { type: :text_area, label: "Destination Notes", field: :destination_notes}
+    ],
+  }
+} %>
