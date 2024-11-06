@@ -21,9 +21,17 @@ class Checkfront
     # 	"Created"=>"06/11/2024"
     # }
 
-    customers.each do |customer|
+    checkfront_customers.each do |checkfront_customer|
+      customer = Customer.find_or_create_by({
+        name: checkfront_customer["Customer"],
+        email: checkfront_customer["Email"],
+        phone: checkfront_customer["Phone"],
+        address: checkfront_customer["Address"],
+        checkfront_reference: checkfront_customer["Customer ID"],
+        created_at: checkfront_customer["Created"].to_date
+      })
       
-      
+      customer.update_column(:updated_at, Time.now) if customer.updated_at.blank?
     end
     
   end
