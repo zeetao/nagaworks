@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_06_215016) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_06_225507) do
   create_table "booking_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "booking_id"
     t.integer "inventory_id"
@@ -56,5 +56,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_06_215016) do
     t.float "refund_amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "checkfront_reference"
   end
 end
