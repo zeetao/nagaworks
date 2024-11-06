@@ -38,7 +38,7 @@ class Checkfront
   
   def self.import_bookings
     checkfront_bookings_csv_path = "/home/ubuntu/environment/nagaworks/db/checkfront/checkfront_booking_until_31oct2024-awanmulan.csv"
-    bookings = csv_to_array_of_hashes(checkfront_bookings_csv_path)  
+    checkfront_bookings = csv_to_array_of_hashes(checkfront_bookings_csv_path)
     
     # booking format = {
     # 	"Booking"=>"Teratak Bonda",
@@ -84,17 +84,65 @@ class Checkfront
     # 	"Booking instructions"=>""
     # }
     
-    checkfront_bookings.each do |checkfront_booking|
-      booking_unique_reference = 
+    # Get the list of unique checkfront booking references
+    checkfront_booking_references = checkfront_bookings.map{|x| x["Booking ID"]}.uniq
+    
+    # look through each checkfront booking reference to find a collection of booking items
+    checkfront_booking_references.each do |checkfront_booking_reference|
+      # Start Atomic transaction. Required for consistency
+      ActiveRecord::Base.transaction do
+        # find or create the booking with the unique checkfront_booking_reference
+        booking = Booking.find_or_create_by({
+          checkfront_reference: checkfront_booking_reference,
+          created_at: checkfront_booking["Created"].to_datetime
+        })
+        
+        # Update the updated column if nil
+        booking.update_column(:updated_at, Time.now) if booking.updated_at.blank?
+        
+        # Find the booking items for this checkfront_booking_reference
+        checkfront_booking_items = checkfront_bookings.select{|x|x["Booking ID"]==checkfront_booking_reference}
+        
+        # loop through each booking item for that unique checkfront_booking_reference and create the booking item and inventory 
+        checkfront_booking_items.each do |checkfront_booking_item|
+          
+          # Find or create the inventory from the booking item
+          inventory = Inventory.find_or_create_by({
+            name: checkfront_booking_item[""],
+            category: checkfront_booking_item[""],
+            details: checkfront_booking_item[""],
+            description: checkfront_booking_item[""]
+          })
+          
+          if checkfront_booking_item.created_at.blank? || (checkfront_booking_item.created_at > checkfront_booking_item["Created"].to_datetime)
+            # If the booking_item stated creation date is before the inventory creation date, then update the inventory creation date to match. This is so the inventory date is always the earliest date the inventory gets booked
+            inventory.update_column(:created_at, checkfront_booking_item["Created"].to_datetime) 
+          else
+            # save the created at date to the updated_at date so there is a last use date on the inventory
+            inventory.update_column(:updated_at, checkfront_booking_item["Created"].to_datetime) 
+            
+            # update the inventory price to the latest price
+            inventory.update_column(:unit_price, checkfront_booking_item["Amount"].to_f)
+          end
+          
+          
+          booking_item = BookingItem.find_or_create_by({
+            booking_id: booking.id, 
+            inventory_id: inventory.id, 
+            start_date: checkfront_booking_item["Start date"].to_date, 
+            end_date: checkfront_booking_item["End date"].to_date, 
+            item_price: checkfront_booking_item["Amount"].to_f,
+            created_at: checkfront_booking_item["Created"].to_datetime
+          })
+          
+          booking_item.update_column(:updated_at, Time.now) if booking_item.updated_at.blank?
+          
+        end
+        
+        total_booking_price = checkfront_booking_items.map{|x|x["Amount"].to_f}.sum
+        booking.update_column(:tatal_price, total_booking_price)
       
-      
-      booking = Booking.find_or_create_by({
-        checkfront_reference: checkfront_booking["Booking ID"],
-        tatal_price: checkfront_booking[""],
-        created_at: checkfront_booking[""],
-      })
-      
-      booking.update_column(:updated_at, Time.now) if booking.updated_at.blank?
+      end # End Atomic transaction
     end
     
   end
