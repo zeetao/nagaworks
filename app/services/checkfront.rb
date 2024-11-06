@@ -156,7 +156,7 @@ class Checkfront
   
   def self.import_payments
     checkfront_payments_csv_path = "/home/ubuntu/environment/nagaworks/db/checkfront/payments_up_to_06Nov2024.csv"
-    payments = csv_to_array_of_hashes(checkfront_payments_csv_path)
+    checkfront_payments = csv_to_array_of_hashes(checkfront_payments_csv_path)
     
     # payments = {
     #   "Transaction ID"=>"VCYY-311024-1",
@@ -172,6 +172,34 @@ class Checkfront
     #   "Info"=>""
     # }
     
+    checkfront_payments.each do |checkfront_payment|
+      booking_reference = checkfront_payment["Transaction ID"].match(/([[a-z][A-Z]]+[-][0-9]+)[-][0-9]+/)[1]
+      booking = Booking.find_by_checkfront_reference(booking_reference)
+      
+      # Skip this transaction if can't find the booking. This means that the booking has not been inserted yet
+      next if booking.blank?
+      
+      payment = Payment.find_or_create_by({
+        checkfront_reference: checkfront_payment["Transaction ID"]
+      })
+      
+      payment_params = {
+        booking_id: booking.id,
+        checkfront_reference: checkfront_payment["Transaction ID"],
+        created_at: checkfront_payment["Date"].to_datetime,
+        updated_at: checkfront_payment["Date"].to_datetime
+      }
+      
+      case checkfront_payment["Event"]
+      when "PAID"
+        payment_params[:paid_amount] = checkfront_payment["Amount"].to_f
+      when "REFUND"
+        payment_params[:refund_amount] = checkfront_payment["Amount"].to_f
+      end
+      
+      payment.update(payment_params)
+    end
+  
   end
   
 end
