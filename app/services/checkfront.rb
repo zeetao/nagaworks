@@ -140,10 +140,9 @@ class Checkfront
           
           booking_item.update_column(:updated_at, Time.now) if booking_item.updated_at.blank?
           
-          
-          
         end
         
+        # set total booking price by summing all the booking_items per booking
         total_booking_price = checkfront_booking_items.map{|x|x["Amount"].to_f}.sum
         booking.update({
           total_price: total_booking_price,
