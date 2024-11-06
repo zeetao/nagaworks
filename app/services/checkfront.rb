@@ -126,19 +126,21 @@ class Checkfront
             }) 
           end
           
+          # Set booking created date with first booking item created date
+          booking_created_date = checkfront_booking_item["Created"].to_datetime
+          
           booking_item = BookingItem.find_or_create_by({
             booking_id: booking.id, 
             inventory_id: inventory.id, 
             start_date: checkfront_booking_item["Start date"].to_date, 
             end_date: checkfront_booking_item["End date"].to_date, 
             item_price: checkfront_booking_item["Amount"].to_f,
-            created_at: checkfront_booking_item["Created"].to_datetime
+            created_at: booking_created_date
           })
           
           booking_item.update_column(:updated_at, Time.now) if booking_item.updated_at.blank?
           
-          # Set booking created date with first booking item created date
-          booking_created_date = booking_item.created_at
+          
           
         end
         
