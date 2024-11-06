@@ -93,8 +93,7 @@ class Checkfront
       ActiveRecord::Base.transaction do
         # find or create the booking with the unique checkfront_booking_reference
         booking = Booking.find_or_create_by({
-          checkfront_reference: checkfront_booking_reference,
-          created_at: checkfront_booking["Created"].to_datetime
+          checkfront_reference: checkfront_booking_reference
         })
         
         # Update the updated column if nil
@@ -103,9 +102,11 @@ class Checkfront
         # Find the booking items for this checkfront_booking_reference
         checkfront_booking_items = checkfront_bookings.select{|x|x["Booking ID"]==checkfront_booking_reference}
         
+        # nullify first the booking created date
+        booking_created_date = nil
+        
         # loop through each booking item for that unique checkfront_booking_reference and create the booking item and inventory 
         checkfront_booking_items.each do |checkfront_booking_item|
-          
           # Find or create the inventory from the booking item
           inventory = Inventory.find_or_create_by({
             name: checkfront_booking_item[""],
@@ -125,7 +126,6 @@ class Checkfront
             inventory.update_column(:unit_price, checkfront_booking_item["Amount"].to_f)
           end
           
-          
           booking_item = BookingItem.find_or_create_by({
             booking_id: booking.id, 
             inventory_id: inventory.id, 
@@ -137,10 +137,16 @@ class Checkfront
           
           booking_item.update_column(:updated_at, Time.now) if booking_item.updated_at.blank?
           
+          # Set booking created date with first booking item created date
+          booking_created_date = booking_item.created_at
+          
         end
         
         total_booking_price = checkfront_booking_items.map{|x|x["Amount"].to_f}.sum
-        booking.update_column(:tatal_price, total_booking_price)
+        booking.update({
+          total_price: total_booking_price,
+          created_at: booking_created_date
+        })
       
       end # End Atomic transaction
     end
