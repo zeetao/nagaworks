@@ -109,21 +109,21 @@ class Checkfront
         checkfront_booking_items.each do |checkfront_booking_item|
           # Find or create the inventory from the booking item
           inventory = Inventory.find_or_create_by({
-            name: checkfront_booking_item[""],
-            category: checkfront_booking_item[""],
-            details: checkfront_booking_item[""],
-            description: checkfront_booking_item[""]
+            name: checkfront_booking_item["Booking"]
           })
           
-          if checkfront_booking_item.created_at.blank? || (checkfront_booking_item.created_at > checkfront_booking_item["Created"].to_datetime)
-            # If the booking_item stated creation date is before the inventory creation date, then update the inventory creation date to match. This is so the inventory date is always the earliest date the inventory gets booked
+          if (inventory.created_at > checkfront_booking_item["Created"].to_datetime)
+            # If the booking_item stated creation date is before the inventory creation date, then update the inventory creation date to match. 
+            # This is so the inventory date is always the earliest date the inventory gets booked
             inventory.update_column(:created_at, checkfront_booking_item["Created"].to_datetime) 
-          else
+          elsif (inventory.updated_at < checkfront_booking_item["Created"].to_datetime)
+            # if the updated_at date is less than the booking date, update the updated at date
             # save the created at date to the updated_at date so there is a last use date on the inventory
-            inventory.update_column(:updated_at, checkfront_booking_item["Created"].to_datetime) 
-            
             # update the inventory price to the latest price
-            inventory.update_column(:unit_price, checkfront_booking_item["Amount"].to_f)
+            inventory.update({
+              updated_at: checkfront_booking_item["Created"].to_datetime,
+              unit_price: checkfront_booking_item["Amount"].to_f
+            }) 
           end
           
           booking_item = BookingItem.find_or_create_by({
