@@ -5,6 +5,8 @@ class Booking < ApplicationRecord
   
   after_save :update_customer_aggregated_data
   
+  validates :customer_id, presence: true
+  
   def update_customer_aggregated_data
     customer = self.customer
     
