@@ -106,6 +106,9 @@ class Checkfront
         # nullify first the booking created date
         booking_created_date = nil
         
+        # nullify customer_reference 
+        customer_reference = nil
+        
         # loop through each booking item for that unique checkfront_booking_reference and create the booking item and inventory 
         checkfront_booking_items.each do |checkfront_booking_item|
           # Find or create the inventory from the booking item
@@ -130,6 +133,9 @@ class Checkfront
           # Set booking created date with first booking item created date
           booking_created_date = checkfront_booking_item["Created"].to_datetime
           
+          # set customer_reference
+          customer_reference = checkfront_booking_item["Customer ID"]
+          
           booking_item = BookingItem.find_or_create_by({
             booking_id: booking.id, 
             inventory_id: inventory.id, 
@@ -145,11 +151,16 @@ class Checkfront
         
         # set total booking price by summing all the booking_items per booking
         total_booking_price = checkfront_booking_items.map{|x|x["Amount"].to_f}.sum
+        
+        # set customer booking owner
+        customer = Customer.find_by_checkfront_reference(customer_reference)
+        
         booking.update({
           total_price: total_booking_price,
+          customer_id: customer.id,
           created_at: booking_created_date
         })
-      
+        
       end # End Atomic transaction
     end
     
