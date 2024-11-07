@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_06_225507) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_07_083555) do
   create_table "booking_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "booking_id"
     t.integer "inventory_id"
@@ -28,6 +28,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_06_225507) do
     t.float "total_price"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "items_count"
+    t.integer "payments_count"
+    t.float "total_payments"
+    t.string "status"
   end
 
   create_table "customers", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -38,6 +42,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_06_225507) do
     t.string "checkfront_reference"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "bookings_count"
+    t.float "total_booking_value"
   end
 
   create_table "inventories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -48,6 +54,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_06_225507) do
     t.float "unit_price"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "booking_items_count"
   end
 
   create_table "payments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
