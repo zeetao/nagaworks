@@ -3,6 +3,8 @@ class Payment < ApplicationRecord
   
   after_save :update_booking_aggregated_data
   
+  validates :booking_id, presence: true
+  
   def update_booking_aggregated_data
     booking = self.booking
     
