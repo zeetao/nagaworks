@@ -5,6 +5,8 @@ class BookingItem < ApplicationRecord
   after_save :update_booking_aggregated_data
   after_save :update_inventory_aggregated_data
   
+  validates :booking_id, :inventory_id, :start_date, :end_date, :item_price, presence: true
+  
   def update_booking_aggregated_data
     booking = self.booking
     
