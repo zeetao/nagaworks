@@ -37,7 +37,8 @@ class Checkfront
   end
   
   def self.import_bookings
-    checkfront_bookings_csv_path = "/home/ubuntu/environment/nagaworks/db/checkfront/checkfront_booking_until_31oct2024-awanmulan.csv"
+    # checkfront_bookings_csv_path = "/home/ubuntu/environment/nagaworks/db/checkfront/checkfront_booking_until_31oct2024-awanmulan.csv"
+    checkfront_bookings_csv_path = "/home/ubuntu/environment/nagaworks/db/checkfront/checkfront_bookings_until_7Nov2024-awanmulan.csv"
     checkfront_bookings = csv_to_array_of_hashes(checkfront_bookings_csv_path)
     
     # booking format = {
