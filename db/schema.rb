@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_07_083555) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_07_085920) do
   create_table "booking_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "booking_id"
     t.integer "inventory_id"
@@ -32,6 +32,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_07_083555) do
     t.integer "payments_count"
     t.float "total_payments"
     t.string "status"
+    t.integer "customer_id"
   end
 
   create_table "customers", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
