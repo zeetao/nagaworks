@@ -15,4 +15,17 @@ class Booking < ApplicationRecord
   end
   
   
+  def get_cumulative_payments
+    payments = self.payments
+    
+    total_payments = payments.pluck(:paid_amount)
+    total_payments.delete(nil)
+    
+    total_refunds = payments.pluck(:refund_amount)
+    total_refunds.delete(nil)
+    
+    (total_payments.sum - total_refunds.sum).to_f
+  end
+  
+  
 end
