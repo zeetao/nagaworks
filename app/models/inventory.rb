@@ -3,7 +3,15 @@ class Inventory < ApplicationRecord
   
   validates :name, :category, :unit_price, :details, :description, presence: true
   
-  
+  def self.categories
+    [
+      "Stayovers",
+      "Visits",
+      "Food",
+      "Facilities",
+      "Extras"
+    ]
+  end
   
   
 end
