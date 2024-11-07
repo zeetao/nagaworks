@@ -5,7 +5,7 @@ class BookingItem < ApplicationRecord
   after_save :update_booking_aggregated_data
   after_save :update_inventory_aggregated_data
   
-  def update_customer_aggregated_data
+  def update_booking_aggregated_data
     booking = self.booking
     
     booking.update({
