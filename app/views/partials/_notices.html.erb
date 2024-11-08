@@ -1,0 +1,24 @@
+<%= turbo_frame_tag "notices" do %>
+  <% if notice %>
+    <p class="alert alert-success"><%= notice %></p>
+  <% end %>
+  <% if alert %>
+    <p class="alert alert-danger">
+      <% if alert.class == Hash %>  <!-- for some reason sometimes the errors come in a hash -->
+        <%
+          error_text = ""
+          alert.keys.each do |field|
+            error_text += "#{field} : "
+            alert[field].each do |error|
+              error_text += "#{error}. "
+            end
+            error_text += "\n"
+          end
+        %>
+        <%= error_text %>
+      <% elsif alert.class == ActiveModel::Errors %> <!-- and sometimes as an ActiveModel::Errors.... no idea why-->
+        <%= alert.full_messages.join(". ") %>
+      <% end %>
+    </p>
+  <% end %>
+<% end %>
