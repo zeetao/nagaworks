@@ -42,7 +42,7 @@ gem "bootsnap", require: false
 # gem "image_processing", "~> 1.2"
 
 # For calendaring
-gem 'simple_calendar', '~> 3.0.4'
+# gem 'simple_calendar', '~> 3.0.4'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
