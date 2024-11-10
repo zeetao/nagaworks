@@ -58,8 +58,9 @@
             <% dates_array.each do |calendar_day| %>
               <td>
                 <%= turbo_frame_tag "#{room_name}_#{calendar_day.strftime("%a")}_occupancy" do %>
-                  <% if booking_items.where("inventories.name = ?", room_name).where("start_date <= ?", calendar_day).where("end_date > ?", calendar_day).present? %>
-                    Yes
+                  <% inventory_present = booking_items.where("inventories.name = ?", room_name).where("start_date <= ?", calendar_day).where("end_date > ?", calendar_day).first %>
+                  <% if inventory_present.present? %>
+                    <%= inventory_present.booking.customer.name %>
                   <% end %>
                 <% end %>
               </td>
