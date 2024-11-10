@@ -1,5 +1,31 @@
 <%= turbo_frame_tag "calendar" do %>
-  Booking widget
+  
+  <!-- date selector section -->
+
+  <%= form_with(url: "/booking_items", method: :get) do |form| %>
+    <%= turbo_frame_tag "calendar_current_date" do %>
+      <%= form.date_field :start_date, value: current_date  %>
+    <% end %>
+    <%= form.submit 'get date' %>
+  <% end %>
+  <hr>
+  <%= form_with(url: "/booking_items", method: :get) do |form| %>
+    <%= turbo_frame_tag "calendar_previous_week_date" do %>
+      <%= form.date_field :start_date, value: (current_date - 7.days), class: "visually-hidden" %>
+    <% end %>
+    <%= form.submit 'previous week' %>
+  <% end %>
+  
+  <%= form_with(url: "/booking_items", method: :get) do |form| %>
+    <%= turbo_frame_tag "calendar_next_week_date" do %>
+      <%= form.date_field :start_date, value: (current_date + 7.days), class: "visually-hidden" %>
+    <% end %>
+    <%= form.submit 'next week' %>
+  <% end %>
+  
+  <!-- date selector end -->
+  
+  <!-- calendar section -->
   
   <table>
     <thead>
@@ -21,6 +47,7 @@
     </tbody>
   </table>
   
+  <!-- calendar section end -->
   
   
 <% end %>

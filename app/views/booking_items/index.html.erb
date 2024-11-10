@@ -1,10 +1,4 @@
 
 <h1>This is booking calendar</h1>
 
-<%= form_with(url: "/booking_items", method: :get) do |form| %>
-  <%= form.text_field :start_date %>
-  <%= form.submit 'get date' %>
-<% end %>
-
-
-<%= render partial: "booking_items/calendar", locals: {booking_items: @booking_items} %>
+<%= render partial: "booking_items/calendar", locals: {booking_items: @booking_items, current_date: @current_date} %>
