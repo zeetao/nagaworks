@@ -1,0 +1,19 @@
+<%= turbo_frame_tag "calendar" do %>
+  Booking widget
+  
+  <table>
+    <thead>
+      <th>Name</th>
+    </thead>
+    <tbody>
+      <% booking_items.each do |booking_item| %>
+        <tr id="<%= dom_id(booking_item)%>_data">
+          <td><%= turbo_frame_tag "#{dom_id(booking_item)}_data_id" do %><%= booking_item.inventory.name %><% end %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  
+  
+  
+<% end %>
