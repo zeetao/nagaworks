@@ -3,23 +3,17 @@
   <!-- date selector section -->
 
   <%= form_with(url: "/booking_items", method: :get) do |form| %>
-    <%= turbo_frame_tag "calendar_current_date" do %>
-      <%= form.date_field :start_date, value: current_date  %>
-    <% end %>
+    <%= form.date_field :start_date, value: current_date  %>
     <%= form.submit 'get date' %>
   <% end %>
   
   <%= form_with(url: "/booking_items", method: :get) do |form| %>
-    <%= turbo_frame_tag "calendar_previous_week_date" do %>
-      <%= form.date_field :start_date, value: (current_date - 7.days), class: "visually-hidden" %>
-    <% end %>
+    <%= form.date_field :start_date, value: (current_date - 7.days), class: "visually-hidden" %>
     <%= form.submit 'previous week' %>
   <% end %>
   
   <%= form_with(url: "/booking_items", method: :get) do |form| %>
-    <%= turbo_frame_tag "calendar_next_week_date" do %>
-      <%= form.date_field :start_date, value: (current_date + 7.days), class: "visually-hidden" %>
-    <% end %>
+    <%= form.date_field :start_date, value: (current_date + 7.days), class: "visually-hidden" %>
     <%= form.submit 'next week' %>
   <% end %>
   
@@ -55,15 +49,13 @@
     <tbody>
       <% room_list.each do |room_name| %>
         <tr id="#{room_name}_row">
-          <td><%= turbo_frame_tag "#{room_name}_name" do %><%= room_name %><% end %></td>
+          <td><%= room_name %></td>
             <% dates_array.each do |calendar_day| %>
               <td>
-                <%= turbo_frame_tag "#{room_name}_#{calendar_day.strftime("%a")}_occupancy" do %>
-                  <% inventory_present = booking_items.where("inventories.name = ?", room_name).where("start_date <= ?", calendar_day).where("end_date > ?", calendar_day).first %>
-                  <% if inventory_present.present? %>
-                    <%= inventory_present.booking.customer.name %>
-                    <% customer_list.push(inventory_present.booking.customer) %>
-                  <% end %>
+                <% inventory_present = booking_items.where("inventories.name = ?", room_name).where("start_date <= ?", calendar_day).where("end_date > ?", calendar_day).first %>
+                <% if inventory_present.present? %>
+                  <%= inventory_present.booking.customer.name %>
+                  <% customer_list.push(inventory_present.booking.customer) %>
                 <% end %>
               </td>
             <% end %>
