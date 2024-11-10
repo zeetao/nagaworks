@@ -8,7 +8,7 @@
     <% end %>
     <%= form.submit 'get date' %>
   <% end %>
-  <hr>
+  
   <%= form_with(url: "/booking_items", method: :get) do |form| %>
     <%= turbo_frame_tag "calendar_previous_week_date" do %>
       <%= form.date_field :start_date, value: (current_date - 7.days), class: "visually-hidden" %>
@@ -23,25 +23,47 @@
     <%= form.submit 'next week' %>
   <% end %>
   
+  <hr>
+  
   <!-- date selector end -->
   
   <!-- calendar section -->
   
-  <table>
+  <% 
+    dates_array = (current_date..(current_date + 7)).to_a 
+    
+    room_list = [
+      "Durian Runtuh",
+      "Rahsiah",
+      "Senjja",
+      "Evensong",
+      "Sasterawan",
+      "Khemah"
+    ]
+  
+  %>
+  
+  <table id="calendar-table" class="table table-bordered">
     <thead>
-      <th>Room</th>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-      <th>4</th>
-      <th>5</th>
-      <th>6</th>
-      <th>7</th>
+      <th scope="col">Room</th>
+      
+      <% dates_array.map{|x| x.strftime("%a %d")}.each do |calendar_day_string| %>
+        <th><%= calendar_day_string %></th>
+      <% end %>
     </thead>
     <tbody>
-      <% booking_items.each do |booking_item| %>
-        <tr id="<%= dom_id(booking_item)%>_data">
-          <td><%= turbo_frame_tag "#{dom_id(booking_item)}_data_id" do %><%= booking_item.inventory.name %><% end %></td>
+      <% room_list.each do |room_name| %>
+        <tr id="#{room_name}_row">
+          <td><%= turbo_frame_tag "#{room_name}_name" do %><%= room_name %><% end %></td>
+            <% dates_array.each do |calendar_day| %>
+              <td>
+                <%= turbo_frame_tag "#{room_name}_#{calendar_day.strftime("%a")}_occupancy" do %>
+                  <% if booking_items.where("inventories.name = ?", room_name).where("start_date <= ?", calendar_day).where("end_date > ?", calendar_day).present? %>
+                    Yes
+                  <% end %>
+                <% end %>
+              </td>
+            <% end %>
         </tr>
       <% end %>
     </tbody>
