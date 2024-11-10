@@ -41,6 +41,7 @@
       "Khemah"
     ]
   
+    customer_list = []
   %>
   
   <table id="calendar-table" class="table table-bordered">
@@ -61,6 +62,7 @@
                   <% inventory_present = booking_items.where("inventories.name = ?", room_name).where("start_date <= ?", calendar_day).where("end_date > ?", calendar_day).first %>
                   <% if inventory_present.present? %>
                     <%= inventory_present.booking.customer.name %>
+                    <% customer_list.push(inventory_present.booking.customer) %>
                   <% end %>
                 <% end %>
               </td>
@@ -71,6 +73,35 @@
   </table>
   
   <!-- calendar section end -->
+  <hr>
+  <!-- customer section  -->
+  <table id="customer_details_table" class="table table-bordered">
+    <thead>
+      <th>Name</th>
+      <th>Phone</th>
+      <th>Email</th>
+      <th>Visits</th>
+      <th>Last Visit</th>
+    </thead>
+    <tbody>
+      <% customer_list.uniq.each do |customer| %>
+        <tr>
+          <td><%= customer.name %></td>
+          <td><%= customer.phone %></td>
+          <td><%= customer.email %></td>
+          <td><%= customer.bookings.count %></td>
+          <td>
+            <% if customer.bookings.count > 1 %>
+              <%= customer.bookings.order(:created_at).last(2).first.booking_items.order(:start_date).last.start_date.to_formatted_s(:long) %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <!-- customer section end -->
+  
+  
   
   
 <% end %>
