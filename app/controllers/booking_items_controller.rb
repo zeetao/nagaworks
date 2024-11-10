@@ -2,7 +2,8 @@ class BookingItemsController < ApplicationController
 
   def index
     if params[:start_date].present?
-      @booking_items = BookingItem.joins(:inventory).where("inventories.category = ?", "Rooms").where("inventories.category = ?", "Rooms")
+      @booking_items = BookingItem.joins(:inventory)
+        .where("inventories.category = ?", "Rooms")
         .where("start_date >= ?", params[:start_date].to_date)
         .where("start_date <= ?", params[:start_date].to_date + 6.days)
         
