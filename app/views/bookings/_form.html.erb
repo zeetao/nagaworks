@@ -1,7 +1,7 @@
 
 
 <!-- Customer form -->
-<%= form_with @customer do |form| %>
+<%= form_with customer do |form| %>
   
   <%= form.label :name, "Your name" %>
   <%= form.string_field :name %>
@@ -19,7 +19,7 @@
 <% end %>
 
 
-<%= form_with @booking do |form| %>
+<%= form_with booking do |form| %>
   <!--dates section-->
   <%= form.label :start_date, "Arrival Date" %>
   <%= form.date_field :start_date %>
