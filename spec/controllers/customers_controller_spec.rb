@@ -2,11 +2,21 @@ require 'rails_helper'
 
 RSpec.describe CustomersController, type: :controller do
   let(:valid_attributes) do
-    { name: "John Doe", email: "john.doe@example.com", phone: "123-456-7890" }
+    { 
+      name: "John Doe", 
+      email: "john.doe@example.com", 
+      phone: "123-456-7890",
+      address: 'the restaurant at the end of the universe'
+    }
   end
 
   let(:invalid_attributes) do
-    { name: "", email: "invalid_email", phone: "" }
+    { 
+      name: "", 
+      email: "invalid_email", 
+      phone: "asdasdasd",
+      address: ''
+    }
   end
 
   describe "POST #create" do
