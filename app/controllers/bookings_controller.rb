@@ -8,6 +8,7 @@ class BookingsController < ApplicationController
   end
 
   def new
+    @customer = Customer.new
     @booking = Booking.new
   end
 
