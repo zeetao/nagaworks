@@ -1,38 +1,41 @@
 
 
-<!-- Customer form -->
-<%= form_with customer do |form| %>
-  
-  <%= form.label :name, "Your name" %>
-  <%= form.string_field :name %>
-  
-  <%= form.label :email, "Email" %>
-  <%= form.string_field :name %>
-  
-  <%= form.label :phone, "Phone" %>
-  <%= form.string_field :phone %>
-  
-  <%= form.label :address, "Address" %>
-  <%= form.string_field :address %>
-  
-  <%= form.submit "Submit" %>
+<%= turbo_frame_tag "customer_form" do %>
+  <!-- Customer form -->
+  <%= form_with customer do |form| %>
+    
+    <%= form.label :name, "Your name" %>
+    <%= form.string_field :name %>
+    
+    <%= form.label :email, "Email" %>
+    <%= form.string_field :name %>
+    
+    <%= form.label :phone, "Phone" %>
+    <%= form.string_field :phone %>
+    
+    <%= form.label :address, "Address" %>
+    <%= form.string_field :address %>
+    
+    <%= form.submit "Submit" %>
+  <% end %>
 <% end %>
 
-
-<%= form_with booking do |form| %>
-  <!--dates section-->
-  <%= form.label :start_date, "Arrival Date" %>
-  <%= form.date_field :start_date %>
-  
-  <%= form.label :end_date, "Departure Date" %>
-  <%= form.date_field :end_date %>
-  
-  <!--dates section end-->
-  
-  <!--booking-items section-->
-  
-  
-  <!--booking-items end-->
-  
-  <%= form.submit "Search" %>
+<%= turbo_frame_tag "booking_form" do %>
+  <%= form_with booking do |form| %>
+    <!--dates section-->
+    <%= form.label :start_date, "Arrival Date" %>
+    <%= form.date_field :start_date %>
+    
+    <%= form.label :end_date, "Departure Date" %>
+    <%= form.date_field :end_date %>
+    
+    <!--dates section end-->
+    
+    <!--booking-items section-->
+    
+    
+    <!--booking-items end-->
+    
+    <%= form.submit "Search" %>
+  <% end %>
 <% end %>
