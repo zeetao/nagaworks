@@ -18,6 +18,8 @@ Rails.application.routes.draw do
   resources :booking_items
   resources :inventories
   resources :payments
+  
+  resources :booking_steps
 
 
 end

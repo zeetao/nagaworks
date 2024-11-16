@@ -1,0 +1,2 @@
+class BookingStepsController < ApplicationController
+end
