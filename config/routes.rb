@@ -19,7 +19,9 @@ Rails.application.routes.draw do
   resources :inventories
   resources :payments
   
-  resources :booking_steps
+  resources :bookings do
+    resources :wizard, controller: 'bookings'
+  end
 
 
 end

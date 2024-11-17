@@ -1,57 +1,45 @@
 class BookingsController < ApplicationController
+  include Wicked::Wizard
+  steps :customer, :booking, :book_items
 
-  def index
-    
-  end
-  
+  before_action :initialize_cart, only: %i[show update]
+
   def show
+    render_wizard
   end
 
-  def new
-    @customer = Customer.new
-    @booking = Booking.new
-  end
-
-  def edit
-  end
-
-  # POST /booking or /booking.json
-  def create
-    @booking = Booking.new(booking_params)
-
-    respond_to do |format|
-      if @booking.save
-        format.html { redirect_to booking_url(@booking), notice: "Booking was successfully created." }
-        # format.turbo_stream { render turbo_stream: turbo_stream.replace("notices", partial: "partials/notices", locals: {notice: "Booking was successfully recorded."}) }
-        # format.json { render :show, status: :created, location: @booking }
-      else
-        # format.html { redirect_to new_booking_path, status: :unprocessable_entity, alert: @booking.errors }
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("notices", partial: "partials/notices", locals: {alert: @booking.errors}) }
-        # format.json { render json: @booking.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # PATCH/PUT /bookings/1 or /bookings/1.json
   def update
-    respond_to do |format|
-      if @booking.update(booking_params)
-        # format.html { redirect_to booking_url(@booking), notice: "Booking was successfully updated." }
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("notices", partial: "partials/notices", locals: {notice: "Booking was successfully updated."}) }
-        # format.json { render :show, status: :ok, location: @booking }
-      else
-        # format.html { redirect_to edit_booking_path(@booking), status: :unprocessable_entity, alert: @booking.errors }
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("notices", partial: "partials/notices", locals: {alert: @booking.errors}) }
-        # format.json { render json: @booking.errors, status: :unprocessable_entity }
-      end
+    @cart.assign_attributes(step_params)
+    if @cart.valid_for_step?(step)
+      render_wizard @cart
+    else
+      render step
     end
   end
-  
-  private
-  
-  # Only allow a list of trusted parameters through.
-  def booking_params
-    params.require(:customer).permit(:status, :customer_id)
+
+  def finish_wizard_path
+    bookings_path
   end
-  
+
+  private
+
+  def initialize_cart
+    @cart ||= Cart.new(
+      customer: Customer.find_by(id: params[:customer_id]),
+      booking: Booking.find_by(id: params[:booking_id])
+    )
+  end
+
+  def step_params
+    case step
+    when :customer
+      params.require(:cart).permit(customer: [:name, :phone, :email, :address]).merge(step: step)
+    when :booking
+      params.require(:cart).permit(booking: [:name, :phone, :email, :address, :start_date, :end_date]).merge(step: step)
+    when :book_items
+      params.require(:cart).permit(booking_items: [:inventory_id, :start_date, :end_date, :timeslot]).merge(step: step)
+    when :payments
+      params.require(:cart).permit(payments: [:booking_id, :paid_amount]).merge(step: step)
+    end
+  end
 end
