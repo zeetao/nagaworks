@@ -41,7 +41,7 @@ class BookingsController < ApplicationController
     when :book_food
       params.require(:cart).permit(booking_items: [:inventory_id, :start_date, :end_date, :timeslot]).merge(step: step)
     when :payment
-      params.require(:cart).permit(payments: [:booking_id, :paid_amount]).merge(step: step)
+      params.require(:cart).permit(payments: [:paid_amount]).merge(step: step)
     end
   end
 end
