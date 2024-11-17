@@ -1,4 +1,6 @@
 class Cart
+  include ActiveModel::Model
+  
   attr_accessor :customer, :booking, :booking_items, :payments
 
   def initialize(customer: nil, booking: nil, booking_items: [], payments: [])
@@ -24,7 +26,7 @@ class Cart
       end
     end
   end
-
+  
   def valid_for_step?(step)
     case step
     when :customer
@@ -38,6 +40,19 @@ class Cart
     else
       false
     end
+  end
+  
+  def persisted?
+    false
+  end
+
+  def to_key
+    nil
+  end
+
+  # Optionally override model name if you want it to appear as 'cart' in form parameters
+  def self.model_name
+    ActiveModel::Name.new(self, nil, "Cart")
   end
 
   def save
