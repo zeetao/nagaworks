@@ -1,10 +1,11 @@
 class Cart
-  attr_accessor :customer, :booking, :booking_items
+  attr_accessor :customer, :booking, :booking_items, :payments
 
-  def initialize(customer: nil, booking: nil, booking_items: [])
+  def initialize(customer: nil, booking: nil, booking_items: [], payments: [])
     @customer = customer || Customer.new
     @booking = booking || Booking.new
     @booking_items = booking_items.presence || [BookingItem.new]
+    @payments = payments.presence ||[Payment.new]
   end
 
   def assign_attributes(step_params)
@@ -17,6 +18,10 @@ class Cart
       self.booking_items = step_params[:booking_items].map do |item_params|
         BookingItem.new(item_params)
       end
+    when :payments
+      self.payments = step_params[:payments].map do |payment_params|
+        Payment.new(payment_params)
+      end
     end
   end
 
@@ -28,6 +33,8 @@ class Cart
       booking.valid?
     when :book_items
       booking_items.all?(&:valid?)
+    when :payments
+      payments.all?(&:valid?)
     else
       false
     end
