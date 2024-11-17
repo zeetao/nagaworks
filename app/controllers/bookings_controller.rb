@@ -2,18 +2,17 @@ class BookingsController < ApplicationController
   include Wicked::Wizard
   steps :customer, :book_stay, :book_others, :book_food, :payment
 
-  before_action :initialize_cart, only: %i[show update]
+  before_action :set_cart
 
   def show
     render_wizard
   end
 
   def update
-    @cart.assign_attributes(step_params)
-    if @cart.valid_for_step?(step)
-      render_wizard @cart
+    if @cart.update(cart_params)
+      redirect_to next_wizard_path
     else
-      render step
+      render_wizard
     end
   end
 
@@ -23,25 +22,31 @@ class BookingsController < ApplicationController
 
   private
 
-  def initialize_cart
-    @cart ||= Cart.new(
-      customer: Customer.find_by(id: params[:customer_id]),
-      booking: Booking.find_by(id: params[:booking_id])
+  def cart_params
+    params.require(:cart).permit(
+      customer: [:email, :name, :phone, :address],
+      book_stay: [:inventory_id, :start_date, :end_date],
+      book_others: [:inventory_id, :start_date, :end_date, :timeslot],
+      book_food: [:inventory_id, :start_date, :end_date, :timeslot],
+      payment: [:paid_amount]
     )
   end
-
-  def step_params
-    case step
-    when :customer
-      params.require(:cart).permit(booking: [:name, :phone, :email, :address, :start_date, :end_date]).merge(step: step)
-    when :book_stay
-      params.require(:cart).permit(booking_items: [:inventory_id, :start_date, :end_date]).merge(step: step)
-    when :book_others
-      params.require(:cart).permit(booking_items: [:inventory_id, :start_date, :end_date, :timeslot]).merge(step: step)
-    when :book_food
-      params.require(:cart).permit(booking_items: [:inventory_id, :start_date, :end_date, :timeslot]).merge(step: step)
-    when :payment
-      params.require(:cart).permit(payments: [:paid_amount]).merge(step: step)
-    end
+  
+  def set_cart
+    book_stay_items = cart_params[:book_stay].present? ? cart_params[:book_stay].map { |item| BookingItem.new(item) } : []
+    book_others_items = cart_params[:book_others].present? ? cart_params[:book_others].map { |item| BookingItem.new(item) } : []
+    book_food_items = cart_params[:book_food].present? ? cart_params[:book_food].map { |item| BookingItem.new(item) } : []
+    booking_items_array = (book_stay_items + book_others_items + book_food_items) || []
+    
+    customer_params = cart_params[:customer].present? ? Customer.new(cart_params[:customer]) : []
+    
+    @cart = Cart.new(
+      customer: customer_params,
+      booking: Booking.new,
+      booking_items: booking_items_array
+    )
+  rescue ActionController::ParameterMissing
+    @cart = Cart.new
   end
+
 end
