@@ -14,13 +14,19 @@ class Cart
     case step_params[:step]
     when :customer
       customer.assign_attributes(step_params[:customer])
-    when :booking
-      booking.assign_attributes(step_params[:booking])
-    when :book_items
+    when :book_stay
       self.booking_items = step_params[:booking_items].map do |item_params|
         BookingItem.new(item_params)
       end
-    when :payments
+    when :book_others
+      self.booking_items = step_params[:booking_items].map do |item_params|
+        BookingItem.new(item_params)
+      end
+    when :book_food
+      self.booking_items = step_params[:booking_items].map do |item_params|
+        BookingItem.new(item_params)
+      end
+    when :payment
       self.payments = step_params[:payments].map do |payment_params|
         Payment.new(payment_params)
       end
