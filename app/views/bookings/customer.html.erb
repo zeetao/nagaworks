@@ -1,0 +1,15 @@
+<h3>Customer Form</h3>
+
+<%= render partial: "partials/notices"%>
+
+<%= form_with model: @cart, url: wizard_path, method: :put do |f| %>
+  <%= f.fields_for :customer do |customer_form| %>
+    <%= customer_form.label :name %>
+    <%= customer_form.text_field :name %>
+    <%= customer_form.label :phone %>
+    <%= customer_form.text_field :phone %>
+    <%= customer_form.label :email %>
+    <%= customer_form.text_field :email %>
+  <% end %>
+  <%= f.submit "Next" %>
+<% end %>
