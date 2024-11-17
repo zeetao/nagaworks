@@ -1,6 +1,6 @@
 class BookingsController < ApplicationController
   include Wicked::Wizard
-  steps :customer, :booking, :book_items
+  steps :booking, :book_items, :payment
 
   before_action :initialize_cart, only: %i[show update]
 
@@ -32,8 +32,6 @@ class BookingsController < ApplicationController
 
   def step_params
     case step
-    when :customer
-      params.require(:cart).permit(customer: [:name, :phone, :email, :address]).merge(step: step)
     when :booking
       params.require(:cart).permit(booking: [:name, :phone, :email, :address, :start_date, :end_date]).merge(step: step)
     when :book_items
