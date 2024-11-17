@@ -60,6 +60,39 @@ class Cart
   def self.model_name
     ActiveModel::Name.new(self, nil, "Cart")
   end
+  
+  # replacement update method to update all nested data
+  def update(params)
+    # Update Customer attributes
+    if params[:customer]
+      customer.assign_attributes(params[:customer])
+    end
+
+    # Update Booking attributes
+    if params[:booking]
+      booking.assign_attributes(params[:booking])
+    end
+
+    # Update or build BookingItems
+    if params[:booking_items]
+      @booking_items = params[:booking_items].map do |item_params|
+        item = booking_items.find { |i| i.id == item_params[:id] } || BookingItem.new
+        item.assign_attributes(item_params)
+        item
+      end
+    end
+
+    # Update or build Payments
+    if params[:payments]
+      @payments = params[:payments].map do |payment_params|
+        payment = payments.find { |p| p.id == payment_params[:id] } || Payment.new
+        payment.assign_attributes(payment_params)
+        payment
+      end
+    end
+
+    true
+  end
 
   def save
     ActiveRecord::Base.transaction do
