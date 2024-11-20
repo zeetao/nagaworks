@@ -14,7 +14,7 @@ class BookingsController < ApplicationController
     else
       render_wizard
     end
-  end
+  end 
 
   def finish_wizard_path
     bookings_path
