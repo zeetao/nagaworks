@@ -17,7 +17,7 @@ class BookingItemsController < ApplicationController
         .where("start_date >= ?", 1.month.ago)
         .where("start_date <= ?", 1.month.ago + 7.days)
         
-      @current_date = @booking_items.first.start_date || Time.now.to_date
+      @current_date = @booking_items.first&.start_date || Time.now.to_date
     end
   end
 
