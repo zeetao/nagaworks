@@ -4,7 +4,7 @@ class CreateImportTables < ActiveRecord::Migration[7.2]
       t.string :table_name
       t.string :status
       t.datetime :migrated_at
-      t.text :row_data
+      t.json :row_data
       
       t.timestamps
     end
