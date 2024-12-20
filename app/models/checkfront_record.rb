@@ -2,6 +2,8 @@ require 'csv'
 
 class CheckfrontRecord < ApplicationRecord
   
+  attr_readonly :row_data
+  
   scope :to_migrate, -> { where(status: "Imported") }
   scope :migration_fail, -> { where(status: "Migration Failed") }
   scope :customers, -> { where(table_name: "Customers") }
