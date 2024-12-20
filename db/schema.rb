@@ -65,6 +65,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_19_064312) do
     t.string "table_name"
     t.string "status"
     t.datetime "migrated_at"
+    t.string "notes"
     t.json "row_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
