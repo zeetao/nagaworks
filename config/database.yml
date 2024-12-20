@@ -33,7 +33,7 @@ test:
 # ensure the database is located in a persisted volume.
 production:
   <<: *default
-  database: nagaworks
+  database: nagaworks_production
   host: database-1.co60z5pcsjnz.ap-southeast-1.rds.amazonaws.com
   port: 3306
   username: admin
