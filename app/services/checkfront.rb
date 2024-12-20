@@ -1,37 +1,63 @@
 class Checkfront
   
-  def self.import_customers
-    checkfront_customers_csv_path = "/home/ubuntu/environment/nagaworks/db/checkfront/checkfront_customers_snapshot_06Nov2024.csv"
-    checkfront_customers = csv_to_array_of_hashes(checkfront_customers_csv_path)
+  def self.migrate_customers
     
-    # customer format = {
-    # 	"Customer"=>"Mr. Ngan",
-    # 	"Bookings"=>"1",
-    # 	"Phone"=>"+60122933964",
-    # 	"Customer ID"=>"MJ4-621-509",
-    # 	"Total"=>"1800.00",
-    # 	"Last booking"=>"06/11/2024",
-    # 	"Status"=>"Active",
-    # 	"Email"=>"nganwaikong@gmail.com",
-    # 	"Address"=>"",
-    # 	"City"=>"",
-    # 	"Region"=>"",
-    # 	"Country"=>"",
-    # 	"Zip / Postal"=>"",
-    # 	"Created"=>"06/11/2024"
-    # }
-
-    checkfront_customers.each do |checkfront_customer|
-      customer = Customer.find_or_create_by({
-        name: checkfront_customer["Customer"],
-        email: checkfront_customer["Email"],
-        phone: checkfront_customer["Phone"],
-        address: checkfront_customer["Address"],
-        checkfront_reference: checkfront_customer["Customer ID"],
-        created_at: checkfront_customer["Created"].to_date
-      })
-      
-      customer.update_column(:updated_at, Time.now) if customer.updated_at.blank?
+    CheckfrontRecord.customers.to_migrate.each do |checkfront_record|
+      ActiveRecord::Base.transaction do
+        checkfront_customer = checkfront_record.row_data
+        
+        # keys = ["email", "phone", "source", "address", "created_date", "customer_ref", "customer_name"]
+        customer = Customer.find_by({
+          email: checkfront_customer["email"]
+        })
+        
+        if customer 
+          # customer already exists
+          checkfront_record.migrated_at = customer.updated_at
+          
+          customer.assign_attributes({
+            name: checkfront_customer["customer_name"],
+            phone: checkfront_customer["phone"],
+            address: checkfront_customer["address"],
+            checkfront_reference: checkfront_customer["customer_ref"],
+            created_at: checkfront_customer["created_date"].to_date
+          })
+          
+          if customer.changed?
+            checkfront_record.status = "Migrated"
+            checkfront_record.notes = "Customer id: #{customer.id} updated: #{customer.changes}"
+            customer.save
+          else
+            checkfront_record.status = "Migrated"
+            checkfront_record.notes = "Customer already exist. No changes. id: #{customer.id}"
+            customer.save
+          end
+        else 
+          # customer does not exist
+          customer = Customer.new({
+            name: checkfront_customer["customer_name"],
+            email: checkfront_customer["email"],
+            phone: checkfront_customer["phone"],
+            address: checkfront_customer["address"],
+            checkfront_reference: checkfront_customer["customer_ref"],
+            created_at: checkfront_customer["created_date"].to_date
+          })
+          
+          if customer.save
+            checkfront_record.migrated_at = Time.now.to_datetime
+            checkfront_record.status = "Migrated"
+            checkfront_record.notes = "New Customer Created id: #{customer.id}"  
+          else
+            checkfront_record.migrated_at = Time.now.to_datetime
+            checkfront_record.status = "Migration Failed"
+            checkfront_record.notes = "Error in create: #{customer.errors.full_messages}"
+          end
+          
+        end
+        
+        checkfront_record.save
+        
+      end
     end
     
   end
