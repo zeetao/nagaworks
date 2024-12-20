@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_19_064312) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_20_182440) do
   create_table "active_admin_comments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "namespace"
     t.text "body"
@@ -65,7 +65,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_19_064312) do
     t.string "table_name"
     t.string "status"
     t.datetime "migrated_at"
-    t.string "notes"
+    t.text "notes"
     t.json "row_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
