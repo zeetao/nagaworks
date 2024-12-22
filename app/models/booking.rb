@@ -26,7 +26,7 @@ class Booking < ApplicationRecord
     total_refunds = payments.pluck(:refund_amount)
     total_refunds.delete(nil)
     
-    (total_payments.sum - total_refunds.sum).compact.to_f
+    (total_payments.sum - total_refunds.sum).to_f
   end
   
   
