@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_21_140622) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_22_181027) do
   create_table "active_admin_comments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "namespace"
     t.text "body"
@@ -60,6 +60,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_21_140622) do
     t.float "total_payments"
     t.string "status"
     t.integer "customer_id"
+    t.string "invoice_url"
   end
 
   create_table "checkfront_records", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
