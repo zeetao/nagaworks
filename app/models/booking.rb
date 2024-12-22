@@ -12,7 +12,7 @@ class Booking < ApplicationRecord
     
     customer.update({
       bookings_count: customer.bookings.count,
-      total_booking_value: customer.bookings.pluck(:total_price).sum.to_f
+      total_booking_value: customer.bookings.pluck(:total_price).compact.sum.to_f
     })
   end
   
@@ -26,7 +26,7 @@ class Booking < ApplicationRecord
     total_refunds = payments.pluck(:refund_amount)
     total_refunds.delete(nil)
     
-    (total_payments.sum - total_refunds.sum).to_f
+    (total_payments.sum - total_refunds.sum).compact.to_f
   end
   
   

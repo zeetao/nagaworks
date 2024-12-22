@@ -22,7 +22,7 @@ class BookingItem < ApplicationRecord
     
     inventory.update({
       booking_items_count: booking_items.count,
-      total_booking_value: booking_items.pluck(:item_price).sum.to_f
+      total_booking_value: booking_items.pluck(:item_price).compact.sum.to_f
     })
   end
 end
