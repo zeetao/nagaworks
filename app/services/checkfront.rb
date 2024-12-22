@@ -115,7 +115,11 @@ class Checkfront
     		payments_array = checkfront_booking_data[:payments]
     
     		customer = Customer.find_by_checkfront_reference(customer_id)
-    		booking = Booking.find_or_create_by({checkfront_reference: booking_id, customer_id: customer.id})
+    		booking = Booking.find_or_create_by({
+    		  checkfront_reference: booking_id, 
+    		  customer_id: customer.id,
+    		  created_at: created_at.to_datetime
+    		})
     		
     		booking_item_array.each do |name, count, sub_total|
     			inventory = Inventory.find_or_create_by(name: name)
@@ -131,6 +135,18 @@ class Checkfront
     				created_at: created_at.to_datetime
     			})
     			booking_item.save
+    			
+    			payments_array.each do |payments_data|
+      			date_string = payments_data.keys.first
+      			amount = payments_data[date_string]
+      
+      			payment = Payment.find_or_create_by({
+      				booking_id: booking.id,
+      				paid_amount: amount.to_f,
+      				created_at: date_string.to_datetime
+      			})
+      			payment.save
+      		end
     		end
     	end
     end
