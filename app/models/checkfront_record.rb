@@ -5,6 +5,7 @@ class CheckfrontRecord < ApplicationRecord
   attr_readonly :row_data
   
   scope :to_migrate, -> { where(status: "Imported") }
+  scope :migrated, -> { where(status: "Migrated") }
   scope :migration_fail, -> { where(status: "Migration Failed") }
   scope :customers, -> { where(table_name: "Customers") }
   scope :new_bookings, -> { where(table_name: "New Bookings") }
