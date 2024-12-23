@@ -1,7 +1,8 @@
 class Customer < ApplicationRecord
   has_many :bookings
   
-  validates :name, :phone, :email, presence: true
+  validates :name, presence: true
+  validates :name, uniqueness: true
   validates :email, uniqueness: true
   validates :phone, uniqueness: true
   
