@@ -153,6 +153,133 @@ class Checkfront
   
   end
   
+  def self.migrate_airbnb_bookings
+    CheckfrontRecord.airbnb_bookings.to_migrate.each do |checkfront_record|
+  	puts "Processing #{checkfront_record.id}"
+  	booking_record = checkfront_record.row_data
+  
+  	ActiveRecord::Base.transaction do
+  		customer_name = booking_record["customer"]
+  		email = booking_record["email"]
+  		phone = booking_record["phone_preferably_with_whatsapp"]
+  		address = booking_record["address_street_or_resident_name_level_sufficient"]
+  		checkfront_customer_reference = booking_record["customer_id"]
+  		room = booking_record["booking"]
+  		created_at = booking_record["created"].nil? ? (checkin_date - 2.weeks) : booking_record["created"].to_date
+  		checkin_date = booking_record["start_date"].to_date
+  		checkout_date = booking_record["end_date"].to_date
+  		airbnb_reference = booking_record["airbnb_id"]
+  		amount = booking_record["amount_received"].gsub("RM","").to_f
+  		paid_date = booking_record["paid_when"].to_date
+  		
+  		customer = Customer.find_or_create_by({
+  			checkfront_reference: checkfront_customer_reference,
+  			name: customer_name,
+  			email: email,
+  			phone: phone,
+  			address: address
+  		})
+  		customer.save(validate: false)
+  		puts "Customer found: #{customer.id}"
+  
+  		booking = Booking.find_or_create_by({
+  			checkfront_reference: airbnb_reference, 
+  			customer_id: customer.id,
+  			created_at: created_at
+  		})
+  		puts "booking found id: #{booking.id}" if booking.id.present?
+  		booking.booking_reference = "Airbnb"
+  		booking.save(validate:false)
+  
+  		inventory = Inventory.find_or_create_by(name: room)
+    	inventory.save(validate: false)
+    	puts "Inventory found: #{inventory.id}"
+    	
+  		booking_item = BookingItem.find_or_create_by({
+  			booking_id: booking.id,
+  			inventory_id: inventory.id,
+  			start_date: checkin_date.to_datetime,
+  			end_date: checkout_date.to_datetime,
+  			item_price: amount,
+  			created_at: created_at.to_datetime
+  		})
+  		puts "booking_item found id: #{booking_item.id}" if booking_item.id.present?
+  		booking_item.save(validate: false)
+  		
+  
+  		checkfront_record.status = "Migrated"
+  		checkfront_record.notes = "Migrated. Booking id: #{booking.id}"
+  		checkfront_record.migrated_at = Time.now.to_datetime
+  		checkfront_record.save
+  
+  	end
+  end
+  end
+  
+  def self.migrate_agoda_bookings
+    CheckfrontRecord.agoda_bookings.to_migrate.each do |checkfront_record|
+  	puts "Processing #{checkfront_record.id}"
+  	booking_record = checkfront_record.row_data
+  
+  	ActiveRecord::Base.transaction do
+  		
+  		customer_name = booking_record["customer"].gsub("agoda","")
+  		email = booking_record["email"].try(:strip)
+  		phone = booking_record["phone_preferably_with_whatsapp"].try(:strip)
+  		address = booking_record["address_street_or_resident_name_level_sufficient"]
+  		
+  		room = booking_record["booking"].gsub("Room inventory tracking","").gsub(",", "")
+  		num_pax = booking_record["pax"]
+  		created_at = booking_record["created"].to_datetime
+  		agoda_reference = booking_record["agoda_id"]
+  		
+  		amount = booking_record["amount"].to_f
+  		checkin_date = booking_record["start_date"].to_datetime
+  		checkout_date = booking_record["end_date"].to_datetime
+  		
+  		customer = Customer.find_or_create_by({
+  			name: customer_name,
+  			email: email,
+  			phone: phone,
+  			address: address
+  		})
+  		customer.save(validate: false)
+  		puts "Customer found: #{customer.id}"
+  		
+  		booking = Booking.find_or_create_by({
+  			checkfront_reference: agoda_reference, 
+  			customer_id: customer.id,
+  			created_at: created_at
+  		})
+  		puts "booking found id: #{booking.id}" if booking.id.present?
+  		booking.booking_reference = "Agoda"
+  		booking.save(validate:false)
+  
+  		inventory = Inventory.find_or_create_by(name: room)
+    	inventory.save(validate: false)
+    	puts "Inventory found: #{inventory.id}"
+  
+    	booking_item = BookingItem.find_or_create_by({
+  			booking_id: booking.id,
+  			inventory_id: inventory.id,
+  			start_date: checkin_date.to_datetime,
+  			end_date: checkout_date.to_datetime,
+  			item_price: amount,
+  			created_at: created_at.to_datetime
+  		})
+  		puts "booking_item found id: #{booking_item.id}" if booking_item.id.present?
+  		booking_item.save(validate: false)
+  		
+  
+  		checkfront_record.status = "Migrated"
+  		checkfront_record.notes = "Migrated. Booking id: #{booking.id}"
+  		checkfront_record.migrated_at = Time.now.to_datetime
+  		checkfront_record.save
+  
+  	end
+  end
+  end
+  
   def self.import_bookings
     # checkfront_bookings_csv_path = "/home/ubuntu/environment/nagaworks/db/checkfront/checkfront_booking_until_31oct2024-awanmulan.csv"
     checkfront_bookings_csv_path = "/home/ubuntu/environment/nagaworks/db/checkfront/checkfront_bookings_until_7Nov2024-awanmulan.csv"
