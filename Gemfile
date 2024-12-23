@@ -20,7 +20,7 @@ gem "jbuilder"
 gem "sassc-rails", '~> 2.1.2'
 
 # for bootstrap
-gem 'cssbundling-rails', '~> 1.3.3'
+gem 'cssbundling-rails', '~> 1.4.1'
 
 
 # Use Redis adapter to run Action Cable in production
