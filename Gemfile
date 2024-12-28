@@ -60,6 +60,10 @@ group :development do
   gem "web-console"
 end
 
+# For ruby on jets
+gem "jets-rails", ">= 1.1"
+gem "jets", ">= 6.0"
+
 # For rails admin
 gem 'activeadmin'
 gem 'devise'
