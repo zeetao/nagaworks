@@ -54,7 +54,10 @@
               <td>
                 <% inventory_present = booking_items.where("inventories.name = ?", room_name).where("start_date <= ?", calendar_day).where("end_date > ?", calendar_day).first %>
                 <% if inventory_present.present? %>
-                  <%= inventory_present.booking.customer.name %>
+                  <div>
+                    <%= inventory_present.booking.customer.name %><br>
+                    <%= inventory_present.booking.booking_reference %> Booking id: <%= inventory_present.booking.id %><br>
+                  </div>
                   <% customer_list.push(inventory_present.booking.customer) %>
                 <% end %>
               </td>
