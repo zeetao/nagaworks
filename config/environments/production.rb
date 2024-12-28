@@ -1,6 +1,13 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  # Jobs https://docs.rubyonjets.com/docs/jobs/enable/
+  # config.active_job.queue_adapter = :jets_job
+
+  # Assets https://docs.rubyonjets.com/docs/assets/cloudfront/
+  config.asset_host = ENV["JETS_ASSET_HOST"] unless ENV["JETS_ASSET_HOST"].blank?
+  config.public_file_server.enabled = false
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
