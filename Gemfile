@@ -67,6 +67,9 @@ gem 'cancancan'
 gem 'draper'
 gem 'pundit'
 
+# For parsing HTML for TWN
+gem 'nokogiri'
+
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
