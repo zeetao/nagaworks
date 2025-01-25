@@ -1,5 +1,5 @@
 class CreateTwnfiles < ActiveRecord::Migration[7.2]
-  def up
+  def change
     create_table :twnfiles do |t|
       t.text :filename_full
       t.string :root_filename
