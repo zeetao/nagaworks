@@ -1,8 +1,16 @@
+require 'nokogiri'
+
 class Twnfile < ApplicationRecord
   
   validates :filename_full, presence: true
   validates :filename_full, uniqueness: true
-
+  
+  scope :html, -> { where(file_extension: ["htm", "html"]) }
+  scope :images, -> { where(file_extension: ["gif", "jpg", "jpeg", "png", "ico"]) }
+  scope :docs, -> { where(file_extension: ["doc", "pdf", "ppt", "docx", "xlsx", "rtf", "txt"]) }
+  scope :media, -> { where(file_extension: ["mp4"]) }
+  scope :unknown, -> { where(file_extension: [nil, "xml", "tmp", "WIPOrekindlespatenttalks", "HOT", "dta", "js", "bak", "dwt", "php", "htaccess", "current", "hist", "db"]) }
+ 
   before_save :populate_fields
 
   def self.twnrootdirectory
@@ -28,10 +36,14 @@ class Twnfile < ApplicationRecord
   
   def read_file
     filepath = "#{Twnfile.twnrootdirectory}#{self.filename_full}"
-    file = File.open(filepath, "r")
-    
-    
-    
+    return File.read(filepath)
+  end
+  
+  def extract_data
+    # to extrac the contents of the page
+    html_content = read_file
+    doc = Nokogiri::HTML(html_content)
+    content_container = doc.css('table tr')[1]
   end
   
   def self.import_from_file(filepath = "/home/ubuntu/environment/nagaworks/db/twn/twnmap.txt")
