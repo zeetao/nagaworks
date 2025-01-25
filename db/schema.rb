@@ -111,10 +111,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_25_035156) do
     t.text "filename_full"
     t.string "root_filename"
     t.string "old_twn_url"
-    t.text "tags"
-    t.text "categories"
+    t.json "tags"
+    t.json "categories"
     t.text "html_content"
     t.text "abstract"
+    t.string "file_extension"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
