@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_25_035156) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_26_130222) do
   create_table "active_admin_comments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "namespace"
     t.text "body"
@@ -107,16 +107,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_25_035156) do
     t.string "checkfront_reference"
   end
 
-  create_table "twnfiles", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "twnfiles", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.text "filename_full"
     t.string "root_filename"
     t.string "old_twn_url"
     t.json "tags"
     t.json "categories"
-    t.text "html_content"
+    t.text "html_content", size: :medium
     t.text "abstract"
     t.string "file_extension"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "sanitised_content"
   end
 end
