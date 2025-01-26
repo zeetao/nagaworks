@@ -28,10 +28,34 @@ class Twnfile < ApplicationRecord
     self.root_filename = root_filename
     self.tags = tag_array
     self.file_extension = file_extension
+  
+    # update sanitised content for field
+    if self.html_content_changed?
+      text = Twnfile.sanitise_html_text(self.html_content)
+      self.sanitised_content = text
+    end
+  
   end
   
   def website_url
     "twn.my#{self.filename_full}"
+  end
+  
+  def self.sanitise_html_text(html_text)
+    doc = Nokogiri::HTML(html_text)
+    # Remove scripts, styles, and non-text elements
+    doc.css('script, style').remove
+    # Extract plain text
+    doc.text.gsub(/\s+/, ' ').strip
+    
+  end
+  
+  def extract_html
+    if ["htm", "html"].include?(self.file_extension)
+      html_content = read_file
+      sanitized_content = html_content.encode("UTF-8", invalid: :replace, undef: :replace, replace: "")
+      self.update_column(:html_content, sanitized_content)
+    end
   end
   
   def read_file
