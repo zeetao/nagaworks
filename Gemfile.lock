@@ -220,7 +220,7 @@ GEM
     psych (5.1.2)
       stringio
     public_suffix (6.0.1)
-    puma (6.4.3)
+    puma (6.6.0)
       nio4r (~> 2.0)
     pundit (2.4.0)
       activesupport (>= 3.0.0)
@@ -381,20 +381,8 @@ GEM
     zeitwerk (2.7.1)
 
 PLATFORMS
-  aarch64-linux
-  aarch64-linux-gnu
-  aarch64-linux-musl
-  arm-linux
-  arm-linux-gnu
-  arm-linux-musl
-  arm64-darwin
-  x86-linux
-  x86-linux-gnu
-  x86-linux-musl
-  x86_64-darwin
   x86_64-linux
   x86_64-linux-gnu
-  x86_64-linux-musl
 
 DEPENDENCIES
   activeadmin
