@@ -1,6 +1,7 @@
 require 'nokogiri'
 
 class Twnfile < ApplicationRecord
+  has_many :url_links
   
   validates :filename_full, presence: true
   validates :filename_full, uniqueness: true
