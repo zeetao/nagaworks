@@ -11,6 +11,9 @@ class Twnfile < ApplicationRecord
   scope :docs, -> { where(file_extension: ["doc", "pdf", "ppt", "docx", "xlsx", "rtf", "txt"]) }
   scope :media, -> { where(file_extension: ["mp4"]) }
   scope :unknown, -> { where(file_extension: [nil, "xml", "tmp", "WIPOrekindlespatenttalks", "HOT", "dta", "js", "bak", "dwt", "php", "htaccess", "current", "hist", "db"]) }
+  
+  scope :processed, -> { where.not(comment: nil) }
+  scope :unprocessed, -> { where(comment: nil) }
  
   before_save :populate_fields
 
@@ -49,6 +52,27 @@ class Twnfile < ApplicationRecord
     # Extract plain text
     doc.text.gsub(/\s+/, ' ').strip
     
+  end
+  
+  def extract_url_links
+    ActiveRecord::Base.transaction do
+      begin
+        doc = Nokogiri::HTML(self.html_content)
+        links = doc.css('a').map { |link| link.to_html }.compact
+        
+        links.each do |link|
+          url_link = UrlLink.find_or_initialize_by(original_html_link: link)
+          if url_link.new_record?
+            url_link.twnfile_id = self.id
+            url_link.save!  
+          end
+        end
+      
+        self.update_column(:comment, "Extracted Links #{Time.now.to_datetime}")
+      rescue StandardError => e
+        self.update_column(:comment, "Extracted Links: Error #{e.message}")
+      end
+    end
   end
   
   def extract_html
