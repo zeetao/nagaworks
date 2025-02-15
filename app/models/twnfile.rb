@@ -75,6 +75,17 @@ class Twnfile < ApplicationRecord
     end
   end
   
+  def update_link_count
+    link_count = self.url_links.count
+    self.update_column(:link_count, link_count)
+  end
+  
+  def update_references
+    link_path = self.filename_full.sub(/^\//, "")
+    url_link_ids = UrlLink.where("path LIKE ?", "%#{link_path}%").pluck(:id)
+    self.update_column(:referenced_by_ids, :url_link_ids)
+  end
+  
   def extract_html
     if ["htm", "html"].include?(self.file_extension)
       html_content = read_file
