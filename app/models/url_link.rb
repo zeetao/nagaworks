@@ -16,11 +16,12 @@ class UrlLink < ApplicationRecord
   
   def populate_meta_data
     if original_html_link_changed?
-      
+      doc = Nokogiri::HTML(original_html_link)
       href = doc.at('a')['href']
       parsed_url = URI.parse(href)
+      path = parsed_url.path
       extracted_base_domain = parsed_url.host
-      extracted_file_type = File.extname(path)
+      extracted_file_type = path.present? ? File.extname(path) : nil
       
       if extracted_base_domain == nil or extracted_base_domain == "twn.my"
         self.base_domain = "twn.my"
@@ -32,12 +33,7 @@ class UrlLink < ApplicationRecord
       
       self.path = parsed_url.path
       self.parameters = parsed_url.query
-      
-      if extracted_file_type.blank? or (extracted_file_type == "htm")
-        self.file_type = "html"
-      else
-        self.file_type = extracted_file_type
-      end
+      self.file_type = extracted_file_type
       
     end
   
