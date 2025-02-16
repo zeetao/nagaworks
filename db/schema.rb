@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_15_074856) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_16_141821) do
   create_table "active_admin_comments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "namespace"
     t.text "body"
@@ -122,6 +122,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_15_074856) do
     t.text "comment"
     t.integer "link_count"
     t.json "referenced_by_ids"
+    t.integer "word_count"
   end
 
   create_table "url_links", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
