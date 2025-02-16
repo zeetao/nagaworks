@@ -83,7 +83,7 @@ class Twnfile < ApplicationRecord
   def update_references
     link_path = self.filename_full.sub(/^\//, "")
     url_link_ids = UrlLink.where("path LIKE ?", "%#{link_path}%").pluck(:id)
-    self.update_column(:referenced_by_ids, :url_link_ids)
+    self.update_column(:referenced_by_ids, url_link_ids)
   end
   
   def extract_html
