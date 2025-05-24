@@ -37,6 +37,7 @@ class Twnfile < ApplicationRecord
     if self.html_content_changed?
       text = Twnfile.sanitise_html_text(self.html_content)
       self.sanitised_content = text
+      self.word_count = sanitised_content.split.size
     end
   
   end
