@@ -1,2 +1,0 @@
-class BookingItemsController < ApplicationController
-end
