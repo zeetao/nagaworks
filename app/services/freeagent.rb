@@ -2,7 +2,7 @@ require 'net/http'
 require 'uri'
 require 'json'
 
-class FreeagentService
+class Freeagent
   TOKEN_URL = 'https://api.freeagent.com/v2/token_endpoint'
   API_BASE = 'https://api.freeagent.com/v2'
 
