@@ -3,7 +3,7 @@ require 'uri'
 require 'json'
 
 class FreeagentService
-  TOKEN_URL = 'https://api.freeagent.com/v2/token_endpoint_here'
+  TOKEN_URL = 'https://api.freeagent.com/v2/token_endpoint'
   API_BASE = 'https://api.freeagent.com/v2'
 
   def initialize
