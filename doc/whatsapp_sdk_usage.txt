@@ -1,0 +1,28 @@
+
+Reference: https://ignacio-chiazzo.github.io/ruby_whatsapp_sdk/
+
+# config/initializers/whatsapp_sdk.rb
+WhatsappSdk.configure do |config|
+  config.access_token = ACCESS_TOKEN
+  config.api_version = API_VERSION
+  config.logger = Logger.new(STDOUT) # optional, Faraday logger to attach
+  config.logger_options = { bodies: true } # optional, they are all valid logger_options for Faraday
+end
+
+# Usage
+client = WhatsappSdk::Api::Client.new("<ACCESS TOKEN>") # replace this with a valid access token
+
+client.phone_numbers.register_number(SENDER_ID, 123456) # register the phone number to uplaod media and send message from.
+
+# send a text and a location
+client.messages.send_text(sender_id: SENDER_ID, recipient_number: RECIPIENT_NUMBER,message: "Hey there! it's Whatsapp Ruby SDK")
+
+client.messages.send_location(sender_id: SENDER_ID, recipient_number: RECIPIENT_NUMBER, longitude: -75.6898604, latitude: 45.4192206, name: "Ignacio", address: "My house")
+
+# upload a photo and send it
+image = client.media.upload(sender_id: SENDER_ID, file_path: "test/fixtures/assets/whatsapp.png", type: "image/png")
+client.messages.send_image(sender_id: SENDER_ID, recipient_number: RECIPIENT_NUMBER, image_id: image.id)
+
+# upload a sticker and send it
+sticker = client.media.upload(sender_id: SENDER_ID, file_path: "test/fixtures/assets/sticker.webp", type: "image/webp")
+client.messages.send_sticker(sender_id: SENDER_ID, recipient_number: RECIPIENT_NUMBER, sticker_id: sticker.id)
