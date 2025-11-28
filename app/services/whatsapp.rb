@@ -1,4 +1,3 @@
-require 'mqtt'
 require 'json'
 require 'net/http'
 
