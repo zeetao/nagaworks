@@ -45,6 +45,8 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 end
 
+gem 'whatsapp_sdk'
+
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
@@ -55,3 +57,5 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "csv", "~> 3.3"
