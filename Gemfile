@@ -45,8 +45,6 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 end
 
-gem 'whatsapp_sdk'
-
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
@@ -59,3 +57,6 @@ group :test do
 end
 
 gem "csv", "~> 3.3"
+
+# Below section for proprietary modules
+gem "naga_whatsapp", path: "engines/naga_whatsapp"
