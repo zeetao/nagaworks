@@ -1,6 +1,6 @@
 require "naga_whatsapp/version"
 require "naga_whatsapp/engine"
-require "naga_whatsapp/whatsapp"
+require "naga_whatsapp/methods"
 
 module NagaWhatsapp
   # white list parameters that can be configured in this gem
