@@ -1,3 +1,5 @@
+require "whatsapp_sdk"
+
 module NagaWhatsapp
   class Engine < ::Rails::Engine
     isolate_namespace NagaWhatsapp
