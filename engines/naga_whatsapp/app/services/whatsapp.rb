@@ -3,18 +3,7 @@ require 'net/http'
 
 class Whatsapp
   
-  @@whatsapp_config_all = {
-    "development" => {
-      business_id: Rails.application.credentials.meta.business_id,
-      phone_number_id: Rails.application.credentials.meta.development.phone_id,
-      phone_number: Rails.application.credentials.meta.development.phone_num
-    },
-    "staging" => {
-      business_id: "",
-      phone_number_id: "",
-      phone_number: ""
-    }
-  }
+  @@whatsapp_config_all = NagaWhatsapp.whatsapp_numbers_config
 
   @@whatsappflow_survey_id = "878803277906154"
   
