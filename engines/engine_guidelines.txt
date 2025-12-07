@@ -1,0 +1,17 @@
+This is a text file describing the steps required to create a gem and use them in development locally before graduating them into an external repository.
+This reference is used to create future modules and gems to be reusable in other projects
+
+1. mkdir engines/naga_whatsapp # create the engines folder where the gems will reside locally. All concerns regarding the gems will be in this folder to keep them isolated and scoped properly for better reuse.
+2. rails plugin new engines/naga_whatsapp --mountable --dummy-path=spec/dummy # use the rails generator to generate the plugin files and folders specifying the location of the "dummy" app folder for gem local testing to initialize a dummy gem app to run rspec
+3. engines/naga_whatsapp/lib/naga_whatsapp.rb the first declaration of the module that will be the service of NagaWhatsapp. In there there will be some "require" statements to include other required files. Will also white list configuration parameters for this module / service. 
+4. engines/naga_whatsapp/naga_whatsapp.gemspec is the Gemfile for the app detailing all the dependent requirements of the gem
+5. engines/naga_whatsapp/lib/ folder will contain all the needed files for this service module
+6. engines/lib/naga_whatsapp/engine.rb is where the gem service class is declared as a rails engine. It is also where all the relevant dependent gems are initialized. 
+7. engines/lib/naga_whatsapp/version.rb adds the version number to the module. This should be changed each time the gem (once graduated) is changed
+8. engines/lib/naga_whatsapp/methods.rb is a singleton class declaration for NagaWhatsapp module to add service methods to it
+9. in the parent application at config/initializers/naga_whatsapp.rb the NagaWhatsapp gem is initialized with specific parameters for that project (which must be first whitelisted as per step 3). This is important for reusability so that the gem can be reused in other projects with other configurations like API keys, secret keys, paths and so on.
+10. gem "naga_whatsapp", path: "engines/naga_whatsapp"
+ # The parent gem at the parent root folder will require a line to reference the local gem engine
+11. Later when this gem development is complete and it is "graduated" to a full gem the gem files at engines/naga_whatsapp can be moved to a different repository (removed from the parent) and the gemfile can then reference the repository like gem "naga_whatsapp", path: "git@github.com:zeetao/naga_whatsapp.git"
+12. The gem can also be moved to r ruby gem repository and referenced that way
+ 
