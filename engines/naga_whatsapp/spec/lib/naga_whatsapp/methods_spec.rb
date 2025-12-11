@@ -252,7 +252,7 @@ RSpec.describe NagaWhatsapp do
               "to": recipient_number,
               "recipient_type": "individual",
               "type": "image",
-              "image": {"id": "image_id_123", "caption": ""}
+              "image": {"id": image_id, "caption": ""}
             }.to_json,
             headers: {
               'Accept'=>'*/*',
@@ -282,7 +282,7 @@ RSpec.describe NagaWhatsapp do
               "to": recipient_number,
               "recipient_type": "individual",
               "type": "sticker",
-              "sticker": {"id": "sticker_id_123"}
+              "sticker": {"id": sticker_id}
             }.to_json,
             headers: {
               'Accept'=>'*/*',
