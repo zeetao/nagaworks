@@ -19,9 +19,9 @@ RSpec.describe NagaWhatsapp do
   end
 
   describe "Unit Tests" do
+    let(:recipient_number) { "111111111" }
     describe ".send_message" do
       it "sends a text message" do
-        recipient_number = "111111111"
         message_text = "Hello, world!"
         expected_params = {
           recipient_number: recipient_number,
@@ -35,7 +35,6 @@ RSpec.describe NagaWhatsapp do
 
     describe ".send_location" do
       it "sends a location message" do
-        recipient_number = "111111111"
         location_name = "Naga"
         location_address = "Naga Address"
         latitude = 1.2345
@@ -57,7 +56,6 @@ RSpec.describe NagaWhatsapp do
 
     describe ".send_image" do
       it "uploads an image and sends it" do
-        recipient_number = "111111111"
         imagepath = Rails.root.join("spec/fixtures/image.png").to_s
         image_id = "image_id_123"
 
@@ -76,7 +74,6 @@ RSpec.describe NagaWhatsapp do
 
     describe ".send_sticker" do
       it "uploads a sticker and sends it" do
-        recipient_number = "111111111"
         stickerpath = Rails.root.join("spec/fixtures/sticker.webp").to_s
         sticker_id = "sticker_id_123"
 
@@ -102,7 +99,6 @@ RSpec.describe NagaWhatsapp do
 
     describe ".send_template" do
       it "sends a template message" do
-        recipient_number = "111111111"
         language = "en"
         template_name = "my_template"
         parameters = [{ type: 'text', 'text': 'test' }]
