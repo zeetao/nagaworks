@@ -314,22 +314,34 @@ RSpec.describe NagaWhatsapp do
         template_name = "my_template"
         parameters = [{ type: 'text', 'text': 'test' }]
         
-        stub_request(:post, "#{base_url}/#{config[:phone_number_id]}/messages")
-          .with(
+        stub_request(:post, "https://graph.facebook.com/v19.0/1234567890/messages").
+          with(
             body: {
-              "messaging_product" => "whatsapp",
-              "recipient_type" => "individual",
-              "to" => recipient_number,
-              "type" => "template",
-              "template" => {
-                "name" => template_name,
-                "language" => { "code" => language },
-                "components" => [ { "type" => "BODY", "parameters" => parameters } ].to_json
+              "messaging_product":"whatsapp",
+              "recipient_type":"individual",
+              "to":"111111111",
+              "type":"template",
+              "template":{
+                "name":"my_template",
+                "language":{"code":"en"},
+                "components":[
+                  { 
+                    "type":"BODY",
+                    "parameters":[{"type":"text","text":"test"}]
+                  }.to_json
+                ]
               }
             }.to_json,
-            headers: { 'Content-Type'=>'application/json' }
-          ).to_return(status: 200, body: '{"messages":[{"id":"dummy_message_id"}]}', headers: { 'Content-Type' => 'application/json' })
-          
+            headers: {
+              'Accept'=>'*/*',
+              'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              'Authorization'=>'Bearer test_token',
+              'Content-Type'=>'application/json',
+              'User-Agent'=>'Faraday v2.14.0'
+            })
+          .to_return(status: 200, body: { "data" => [] }.to_json, headers: { 'Content-Type'=>'application/json' })
+
+
         NagaWhatsapp.send_template(recipient_number, language, template_name, parameters)
       end
     end
