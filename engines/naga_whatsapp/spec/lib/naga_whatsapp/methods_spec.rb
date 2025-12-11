@@ -275,17 +275,23 @@ RSpec.describe NagaWhatsapp do
         stub_request(:post, "#{base_url}/#{config[:phone_number_id]}/media")
           .to_return(status: 200, body: { "id" => sticker_id }.to_json, headers: { 'Content-Type'=>'application/json' })
 
-        stub_request(:post, "#{base_url}/#{config[:phone_number_id]}/messages")
+        stub_request(:post, "https://graph.facebook.com/v19.0/1234567890/messages")
           .with(
             body: {
-              "messaging_product" => "whatsapp",
-              "recipient_type" => "individual",
-              "to" => recipient_number,
-              "type" => "sticker",
-              "sticker" => { "id" => sticker_id }
+              "messaging_product": "whatsapp",
+              "to": "111111111",
+              "recipient_type": "individual",
+              "type": "sticker",
+              "sticker": {"id": "sticker_id_123"}
             }.to_json,
-            headers: { 'Content-Type'=>'application/json' }
-          ).to_return(status: 200, body: '{"messages":[{"id":"dummy_message_id"}]}', headers: { 'Content-Type' => 'application/json' })
+            headers: {
+              'Accept'=>'*/*',
+              'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              'Authorization'=>'Bearer test_token',
+              'Content-Type'=>'application/json',
+              'User-Agent'=>'Faraday v2.14.0'
+            }
+          ).to_return(status: 200, body: '{"messages":[{"id":"dummy_message_id"}]}', headers: {})
 
         NagaWhatsapp.send_sticker(recipient_number, stickerpath)
       end
