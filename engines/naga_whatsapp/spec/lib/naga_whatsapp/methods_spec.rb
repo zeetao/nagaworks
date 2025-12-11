@@ -1,8 +1,11 @@
 require 'rails_helper'
+include WebMock::API
 
 RSpec.describe NagaWhatsapp do
   let(:access_token) { "test_token" }
-  let(:client) { WhatsappSdk::Api::Client.new(access_token, "v19.0") }
+  let(:api_version) { "v19.0" }
+  let(:base_url) { "https://graph.facebook.com/#{api_version}" }
+  let(:client) { WhatsappSdk::Api::Client.new(access_token, api_version) }
   let(:config) do
     {
       phone_number_id: "1234567890",
