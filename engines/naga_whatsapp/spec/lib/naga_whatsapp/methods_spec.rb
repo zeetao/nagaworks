@@ -249,7 +249,7 @@ RSpec.describe NagaWhatsapp do
           with(
             body: {
               "messaging_product":"whatsapp",
-              "to": "111111111",
+              "to": recipient_number,
               "recipient_type": "individual",
               "type": "image",
               "image": {"id": "image_id_123", "caption": ""}
@@ -257,7 +257,7 @@ RSpec.describe NagaWhatsapp do
             headers: {
               'Accept'=>'*/*',
               'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-              'Authorization'=>'Bearer test_token',
+              'Authorization'=>"Bearer #{access_token}",
               'Content-Type'=>'application/json',
               'User-Agent'=>'Faraday v2.14.0'
              }).
@@ -279,7 +279,7 @@ RSpec.describe NagaWhatsapp do
           .with(
             body: {
               "messaging_product": "whatsapp",
-              "to": "111111111",
+              "to": recipient_number,
               "recipient_type": "individual",
               "type": "sticker",
               "sticker": {"id": "sticker_id_123"}
@@ -287,7 +287,7 @@ RSpec.describe NagaWhatsapp do
             headers: {
               'Accept'=>'*/*',
               'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-              'Authorization'=>'Bearer test_token',
+              'Authorization'=>"Bearer #{access_token}",
               'Content-Type'=>'application/json',
               'User-Agent'=>'Faraday v2.14.0'
             }
@@ -321,7 +321,7 @@ RSpec.describe NagaWhatsapp do
             body: {
               "messaging_product":"whatsapp",
               "recipient_type":"individual",
-              "to":"111111111",
+              "to": recipient_number,
               "type":"template",
               "template":{
                 "name":"my_template",
@@ -337,7 +337,7 @@ RSpec.describe NagaWhatsapp do
             headers: {
               'Accept'=>'*/*',
               'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-              'Authorization'=>'Bearer test_token',
+              'Authorization'=>"Bearer #{access_token}",
               'Content-Type'=>'application/json',
               'User-Agent'=>'Faraday v2.14.0'
             })
