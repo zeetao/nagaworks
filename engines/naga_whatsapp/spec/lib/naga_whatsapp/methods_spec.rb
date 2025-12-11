@@ -302,7 +302,9 @@ RSpec.describe NagaWhatsapp do
         stub_request(:get, "#{base_url}/#{config[:business_id]}/message_templates?limit=100")
           .with(
             headers: { 'Authorization'=>"Bearer #{access_token}" }
-          ).to_return(status: 200, body: { "data" => [] }.to_json, headers: { 'Content-Type'=>'application/json' })
+          ).to_return(status: 200, body: {
+            "data": [], "paging": {"cursors": {"before": "b", "after": "a"}} }.to_json
+          )
 
         NagaWhatsapp.get_templates
       end
