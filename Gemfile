@@ -60,3 +60,4 @@ gem "csv", "~> 3.3"
 
 # Below section for proprietary modules
 gem "naga_whatsapp", path: "engines/naga_whatsapp"
+gem "naga_freeagent", path: "engines/naga_freeagent"
