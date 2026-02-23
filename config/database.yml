@@ -11,7 +11,7 @@ default: &default
 
 development:
   <<: *default
-  database: nagaworks
+  database: nagaworks_dev
   username: root
   password: 2bMo2bN
 
