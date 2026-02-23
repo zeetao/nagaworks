@@ -19,5 +19,8 @@ Rails.application.routes.draw do
   resources :inventories
   resources :payments
 
+  get "/freeagent/auth", to: "freeagent#auth"
+  get "/freeagent/callback", to: "freeagent#callback"
+
 
 end
