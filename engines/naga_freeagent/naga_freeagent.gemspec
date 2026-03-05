@@ -35,6 +35,10 @@ Gem::Specification.new do |spec|
   # Uncomment to register a new dependency of your gem
   spec.add_dependency "faraday", "~> 2.0" # FreeAgent API communication
   spec.add_dependency "oauth2", "~> 2.0" # For OAuth 2.0 flow with FreeAgent
+  spec.add_dependency "railties", "~> 7.2.2"
+
+  spec.add_development_dependency "rspec-rails", "~> 6.0.0"
+  spec.add_development_dependency "webmock", "~> 3.18.1"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
